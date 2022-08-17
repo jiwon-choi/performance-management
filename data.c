@@ -45,12 +45,15 @@ struct process {
 void parse_process_loginuid(struct process* process, char* filename) {
   FILE* fp;
   struct passwd* pwd;
-  char str[MAX];
+  size_t size = 1;
+  char* str = malloc(sizeof(char) * size);
 
   fp = fopen(filename, "r");
-  process->loginuid = atoi(fgets(str, MAX, fp));
+  getdelim(&str, &size, '\n', fp);
+  process->loginuid = atoi(str);
   pwd = getpwuid(process->loginuid);
   process->username = pwd->pw_name;
+  free(str);
   fclose(fp);
 }
 
@@ -71,28 +74,37 @@ void parse_process_cmdline(struct process* process, char* filename) {
 
 void parse_process_stat(struct process* process, char* filename) {
   FILE* fp;
-  char str[MAX];
+  size_t size = 1;
+  char* str = malloc(sizeof(char) * size);
 
   fp = fopen(filename, "r");
-  fgets(str, MAX, fp);
+  getdelim(&str, &size, '\n', fp);
 
   char* word = strtok(str, " ");
   for (int idx = 2; idx < 18; idx++) {
     word = strtok(NULL, "( )");
-    if (idx == 2) {
+    switch (idx) {
+    case 2:
       process->comm = strdup(word);
-    } else if (idx == 4) {
+      break;
+    case 4:
       process->ppid = atoi(word);
-    } else if (idx == 14) {
+      break;
+    case 14:
       process->utime = strtoul(word, NULL, 10);
-    } else if (idx == 15) {
+      break;
+    case 15:
       process->stime = strtoul(word, NULL, 10);
-    } else if (idx == 16) {
+      break;
+    case 16:
       process->cutime = strtoul(word, NULL, 10);
-    } else if (idx == 17) {
+      break;
+    case 17:
       process->cstime = strtoul(word, NULL, 10);
+      break;
     }
   }
+  free(str);
   fclose(fp);
 }
 
@@ -120,11 +132,12 @@ void parse_process() {
 
 void parse_mem() {
   FILE* fp;
-  char str[MAX];
+  size_t size = 1;
+  char* str = malloc(sizeof(char) * size);
 
   fp = fopen("/Users/jiwon/proc/meminfo", "r");
   struct mem mem;
-  while (fgets(str, MAX, fp)) {
+  while (getdelim(&str, &size, '\n', fp) != EOF) {
     char* word = strtok(str, " :");
     if (strcmp(word, "MemTotal") == 0) {
       mem.mem_total = atoi(strtok(NULL, " "));
@@ -136,16 +149,18 @@ void parse_mem() {
       mem.swap_free = atoi(strtok(NULL, " "));
     }
   }
+  free(str);
   fclose(fp);
   printf("mem : %d %d %d %d\n", mem.mem_total, mem.mem_free, mem.swap_total, mem.swap_free);
 }
 
 void parse_net() {
   FILE* fp;
-  char str[MAX];
-  
+  size_t size = 1;
+  char* str = malloc(sizeof(char) * size);
+
   fp = fopen("/Users/jiwon/proc/net/dev", "r");
-  while (fgets(str, MAX, fp)) {
+  while (getdelim(&str, &size, '\n', fp) != EOF) {
     if (!strchr(str, ':'))
       continue;
 
@@ -167,15 +182,17 @@ void parse_net() {
     printf("net : %s %d %d %d %d\n", net.interface, net.receive_bytes, net.receive_packets, net.transmit_bytes, net.transmit_packets);
     free(net.interface);
   }
+  free(str);
   fclose(fp);
 }
 
 void parse_stat() {
   FILE* fp;
-  char str[MAX];
+  size_t size = 1;
+  char* str = malloc(sizeof(char) * size);
 
   fp = fopen("/Users/jiwon/proc/stat", "r");
-  fgets(str, MAX, fp);
+  getdelim(&str, &size, '\n', fp);
 
   struct stat stat;
   char* word = strtok(str, " ");
@@ -188,6 +205,7 @@ void parse_stat() {
   stat.idle = atoi(word);
   word = strtok(NULL, " ");
   stat.iowait = atoi(word);
+  free(str);
   fclose(fp);
 
   printf("stat : %d %d %d %d\n", stat.user, stat.sys, stat.idle, stat.iowait);
