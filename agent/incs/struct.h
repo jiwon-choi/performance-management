@@ -19,31 +19,33 @@ struct mem {
 };
 
 struct net {
-  char  interface[16];
-  int   receive_bytes;
-  int   receive_packets;
-  int   transmit_bytes;
-  int   transmit_packets;
+  char          interface[16];
+  int           receive_bytes;
+  int           receive_packets;
+  int           transmit_bytes;
+  int           transmit_packets;
+  struct net*   next;
 };
 
 struct process {
-  int             pid;
-  int             ppid;
-  int             loginuid;
-  long            cutime;
-  long            cstime;
-  unsigned long   utime;
-  unsigned long   stime;
-  char            comm[256];
-  char            username[8];
-  char            cmdline[4096][128];
+  int               pid;
+  int               ppid;
+  int               loginuid;
+  long              cutime;
+  long              cstime;
+  unsigned long     utime;
+  unsigned long     stime;
+  char              comm[256];
+  char              username[8];
+  char              cmdline[4096][128];
+  struct process*   next;
 };
 
 struct data {
   struct stat     stat;
-  struct net      net;
   struct mem      mem;
-  struct process  process;
+  struct net*     net;
+  struct process* process;
 };
 
 # pragma pack(pop)

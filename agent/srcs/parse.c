@@ -69,27 +69,33 @@ void parse_process_stat(struct process* process, char* filename) {
 }
 
 static
-void parse_process(struct process* process) {
+void parse_process(struct process** process) {
   DIR* proc;
   struct dirent* ent;
 
   proc = opendir("/Users/jiwon/proc/");
   while ((ent = readdir(proc)) != NULL) {
-    if (ent->d_type == DT_DIR && (process->pid = atoi(ent->d_name)) > 0) {
+    int pid;
+    if (ent->d_type == DT_DIR && (pid = atoi(ent->d_name)) > 0) {
       char filename[MAX];
+      struct process* new = malloc(sizeof(struct process));
+      new->pid = pid;
       sprintf(filename, "/Users/jiwon/proc/%s/stat", ent->d_name);
-      parse_process_stat(process, filename);
+      parse_process_stat(new, filename);
       sprintf(filename, "/Users/jiwon/proc/%s/cmdline", ent->d_name);
-      parse_process_cmdline(process, filename);
+      parse_process_cmdline(new, filename);
       sprintf(filename, "/Users/jiwon/proc/%s/loginuid", ent->d_name);
-      parse_process_loginuid(process, filename);
+      parse_process_loginuid(new, filename);
+
+      new->next = *process;
+      *process = new;
     }
   }
   closedir(proc);
 }
 
 static
-void parse_net(struct net* net) {
+void parse_net(struct net** net) {
   FILE* fp;
   size_t size = 1;
   char* str = malloc(sizeof(char) * size);
@@ -102,16 +108,20 @@ void parse_net(struct net* net) {
     char* word = strtok(str, " :");
     if (strcmp(word, "lo") == 0) continue;
 
-    strcpy(net->interface, word);
+    struct net* new = malloc(sizeof(struct net));
+    strcpy(new->interface, word);
     word = strtok(NULL, " ");
-    net->receive_bytes = atoi(word);
+    new->receive_bytes = atoi(word);
     word = strtok(NULL, " ");
-    net->receive_packets = atoi(word);
+    new->receive_packets = atoi(word);
     for (int i = 0; i < 7; i++)
       word = strtok(NULL, " ");
-    net->transmit_bytes = atoi(word);
+    new->transmit_bytes = atoi(word);
     word = strtok(NULL, " ");
-    net->transmit_packets = atoi(word);
+    new->transmit_packets = atoi(word);
+
+    new->next = *net;
+    *net = new;
   }
   free(str);
   fclose(fp);
