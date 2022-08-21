@@ -1,4 +1,5 @@
 #ifndef STRUCT_H_
+# define STRUCT_H_
 
 # define MAX 10000
 

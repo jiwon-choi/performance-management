@@ -1,4 +1,5 @@
-#ifndef DATA_H_
+#ifndef PARSE_H_
+# define PARSE_H_
 
 # include <stdio.h>
 # include <stdlib.h>
