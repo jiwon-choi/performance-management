@@ -7,8 +7,8 @@
 # include <dirent.h>
 # include <string.h>
 # include <pwd.h>
-# include "struct.h"
+# include "packet.h"
 
-void parse_data(struct data* data);
+void parse_data(struct s_packet* packet);
 
 #endif

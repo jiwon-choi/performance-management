@@ -1,7 +1,42 @@
 #include "parse.h"
 
 static
-void parse_process_loginuid(struct process* process, char* filename) {
+int get_process_size() {
+  DIR* proc;
+  struct dirent* ent;
+  int size = 0;
+
+  proc = opendir("/Users/jiwon/proc/");
+  while ((ent = readdir(proc)) != NULL) {
+    if (ent->d_type == DT_DIR && atoi(ent->d_name) > 0)
+      size++;
+  }
+  closedir(proc);
+  return (size);
+}
+
+static
+int get_net_size() {
+  FILE* fp;
+  size_t strlen = 1;
+  int size = 0;
+  char* str = malloc(sizeof(char) * strlen);
+
+  fp = fopen("/Users/jiwon/proc/net/dev", "r");
+  while (getdelim(&str, &strlen, '\n', fp) != EOF) {
+    if (!strchr(str, ':'))
+      continue;
+    if (strcmp(strtok(str, " :"), "lo") == 0)
+      continue;
+    size++;
+  }
+  free(str);
+  fclose(fp);
+  return (size);
+}
+
+static
+void parse_process_loginuid(struct s_process* process, char* filename) {
   FILE* fp;
   struct passwd* pwd;
   size_t size = 1;
@@ -17,7 +52,7 @@ void parse_process_loginuid(struct process* process, char* filename) {
 }
 
 static
-void parse_process_cmdline(struct process* process, char* filename) {
+void parse_process_cmdline(struct s_process* process, char* filename) {
   FILE* fp;
   size_t size = 1;
   char* str = malloc(sizeof(char) * size);
@@ -32,7 +67,7 @@ void parse_process_cmdline(struct process* process, char* filename) {
 }
 
 static
-void parse_process_stat(struct process* process, char* filename) {
+void parse_process_stat(struct s_process* process, char* filename) {
   FILE* fp;
   size_t size = 1;
   char* str = malloc(sizeof(char) * size);
@@ -69,16 +104,18 @@ void parse_process_stat(struct process* process, char* filename) {
 }
 
 static
-void parse_process(struct process** process) {
+void parse_process(void** process, int size) {
   DIR* proc;
   struct dirent* ent;
 
   proc = opendir("/Users/jiwon/proc/");
+  *process = malloc(sizeof(struct s_process) * size);
+  int idx = 0;
   while ((ent = readdir(proc)) != NULL) {
     int pid;
     if (ent->d_type == DT_DIR && (pid = atoi(ent->d_name)) > 0) {
       char filename[MAX];
-      struct process* new = malloc(sizeof(struct process));
+      struct s_process* new = *process + sizeof(struct s_process) * idx;
       new->pid = pid;
       sprintf(filename, "/Users/jiwon/proc/%s/stat", ent->d_name);
       parse_process_stat(new, filename);
@@ -86,29 +123,30 @@ void parse_process(struct process** process) {
       parse_process_cmdline(new, filename);
       sprintf(filename, "/Users/jiwon/proc/%s/loginuid", ent->d_name);
       parse_process_loginuid(new, filename);
-
-      new->next = *process;
-      *process = new;
+      idx++;
     }
   }
   closedir(proc);
 }
 
 static
-void parse_net(struct net** net) {
+void parse_net(void** net, int size) {
   FILE* fp;
-  size_t size = 1;
-  char* str = malloc(sizeof(char) * size);
+  size_t strlen = 1;
+  char* str = malloc(sizeof(char) * strlen);
 
   fp = fopen("/Users/jiwon/proc/net/dev", "r");
-  while (getdelim(&str, &size, '\n', fp) != EOF) {
+  *net = malloc(sizeof(struct s_net) * size);
+  int idx = 0;
+  while (getdelim(&str, &strlen, '\n', fp) != EOF) {
     if (!strchr(str, ':'))
       continue;
 
     char* word = strtok(str, " :");
     if (strcmp(word, "lo") == 0) continue;
 
-    struct net* new = malloc(sizeof(struct net));
+    struct s_net* new = *net + sizeof(struct s_net) * idx;
+
     strcpy(new->interface, word);
     word = strtok(NULL, " ");
     new->receive_bytes = atoi(word);
@@ -119,22 +157,20 @@ void parse_net(struct net** net) {
     new->transmit_bytes = atoi(word);
     word = strtok(NULL, " ");
     new->transmit_packets = atoi(word);
-
-    new->next = *net;
-    *net = new;
+    idx++;
   }
   free(str);
   fclose(fp);
 }
 
 static
-void parse_mem(struct mem* mem) {
+void parse_mem(struct s_mem* mem) {
   FILE* fp;
-  size_t size = 1;
-  char* str = malloc(sizeof(char) * size);
+  size_t strlen = 1;
+  char* str = malloc(sizeof(char) * strlen);
 
   fp = fopen("/Users/jiwon/proc/meminfo", "r");
-  while (getdelim(&str, &size, '\n', fp) != EOF) {
+  while (getdelim(&str, &strlen, '\n', fp) != EOF) {
     char* word = strtok(str, " :");
     if (strcmp(word, "MemTotal") == 0) {
       mem->mem_total = atoi(strtok(NULL, " "));
@@ -151,13 +187,13 @@ void parse_mem(struct mem* mem) {
 }
 
 static
-void parse_stat(struct stat* stat) {
+void parse_stat(struct s_stat* stat) {
   FILE* fp;
-  size_t size = 1;
-  char* str = malloc(sizeof(char) * size);
+  size_t strlen = 1;
+  char* str = malloc(sizeof(char) * strlen);
 
   fp = fopen("/Users/jiwon/proc/stat", "r");
-  getdelim(&str, &size, '\n', fp);
+  getdelim(&str, &strlen, '\n', fp);
 
   char* word = strtok(str, " ");
   word = strtok(NULL, " ");
@@ -173,9 +209,12 @@ void parse_stat(struct stat* stat) {
   fclose(fp);
 }
 
-void parse_data(struct data* data) {
-  parse_stat(&(data->stat));
-  parse_mem(&(data->mem));
-  parse_net(&(data->net));
-  parse_process(&(data->process));
+void parse_data(struct s_packet* packet) {
+  packet->header.net_size = get_net_size();
+  packet->header.process_size = get_process_size();
+
+  parse_stat(&(packet->body.stat));
+  parse_mem(&(packet->body.mem));
+  parse_net(&(packet->body.net), packet->header.net_size);
+  parse_process(&(packet->body.process), packet->header.process_size);
 }
