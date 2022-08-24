@@ -8,8 +8,9 @@ INCS_DIR		= ./incs/
 SRCS_DIR		= ./srcs/
 OBJS_DIR		= ./objs/
 
-SRC			= agent.c	\
-					parse.c
+SRC			= agent.c \
+					parse.c \
+					queue.c
 
 SRCS		= $(addprefix $(SRCS_DIR), $(SRC))
 OBJS		= $(addprefix $(OBJS_DIR), $(SRC:.c=.o))
