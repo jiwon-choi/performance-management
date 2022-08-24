@@ -32,22 +32,19 @@ void parse_process_loginuid(struct s_process* process, char* filename) {
   fclose(fp);
 }
 
-/*
+// TODO 좀비 프로세스의 경우 cmdline이 비어있는 건지 cmdline 파일 자체가 없는 건지 확인
 static
 void parse_process_cmdline(struct s_process* process, char* filename) {
-  FILE* fp;
-  size_t size = 1;
-  char* str = malloc(sizeof(char) * size);
-
-  fp = fopen(filename, "r");
-  int i = 0;
-  while (getdelim(&str, &size, 0, fp) != EOF) {
-    strcpy(process->cmdline[i++], str);
+  int fd = open(filename, O_RDONLY);
+  int read_size = read(fd, process->cmdline, CMDLINE_MAX);
+  
+  process->cmdline[read_size] = '\0';
+  for (int i = 0; i < read_size - 1; i++) {
+    if (process->cmdline[i] == '\0')
+      process->cmdline[i] = ' ';
   }
-  free(str);
-  fclose(fp);
+  close(fd);
 }
-*/
 
 static
 void parse_process_stat(struct s_process* process, char* filename) {
@@ -114,7 +111,7 @@ void* parse_process(void* queue) {
         sprintf(filename, "%s%s/stat", PROC_LOCATION, ent->d_name);
         parse_process_stat(chunk, filename);
         sprintf(filename, "%s%s/cmdline", PROC_LOCATION, ent->d_name);
-        // parse_process_cmdline(chunk, filename);
+        parse_process_cmdline(chunk, filename);
         sprintf(filename, "%s%s/loginuid", PROC_LOCATION, ent->d_name);
         parse_process_loginuid(chunk, filename);
         chunk_idx++;

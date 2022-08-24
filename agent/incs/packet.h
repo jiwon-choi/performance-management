@@ -15,6 +15,8 @@
 # define NET_LOCATION "/Users/jiwon/proc/net/dev"
 # define PROC_LOCATION "/Users/jiwon/proc/"
 
+# define CMDLINE_MAX 512
+
 # pragma pack(push, 1)
 
 struct s_stat {
@@ -49,7 +51,7 @@ struct s_process {
   unsigned long   stime;
   char            comm[256];
   char            username[8];
-  char            cmdline[MAX]; // TODO null character -> space 변환해서 통째로!
+  char            cmdline[CMDLINE_MAX];
 };
 
 struct s_header {
