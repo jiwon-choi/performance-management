@@ -13,6 +13,6 @@
 void* parse_stat(void* queue);
 void* parse_mem(void* queue);
 void* parse_net(void* queue);
-// void* parse_process();
+void* parse_process(void* queue);
 
 #endif

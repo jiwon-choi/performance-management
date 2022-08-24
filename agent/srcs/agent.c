@@ -45,10 +45,8 @@ void* print_queue(void* queue) {
     while (p) {
       struct s_header* header = p->data;
       if (header->type_of_body == STAT) {
-        struct s_stat* stat = p->data + sizeof(struct s_header);
         printf("~~~ print queue %d STAT!\n", idx);
       } else if (header->type_of_body == MEM) {
-        struct s_mem* mem = p->data + sizeof(struct s_header);
         printf("~~~ print queue %d MEM!\n", idx);
       } else if (header->type_of_body == NET) {
         printf("~~~ print queue %d NET!\n", idx);
@@ -73,11 +71,13 @@ int main() {
   pthread_create(&tid[STAT], NULL, parse_stat, &queue);
   pthread_create(&tid[MEM], NULL, parse_mem, &queue);
   pthread_create(&tid[NET], NULL, parse_net, &queue);
+  pthread_create(&tid[PROCESS], NULL, parse_process, &queue);
   pthread_create(&tid[SEND], NULL, print_queue, &queue);
 
   pthread_join(tid[STAT], NULL);
   pthread_join(tid[MEM], NULL);
   pthread_join(tid[NET], NULL);
+  pthread_join(tid[PROCESS], NULL);
   pthread_join(tid[SEND], NULL);
 
   /*

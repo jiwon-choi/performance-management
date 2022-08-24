@@ -1,14 +1,13 @@
 #include "parse.h"
 #include "queue.h"
 
-/*
 static
 int get_process_size() {
   DIR* proc;
   struct dirent* ent;
   int size = 0;
 
-  proc = opendir("/Users/jiwon/proc/");
+  proc = opendir(PROC_LOCATION);
   while ((ent = readdir(proc)) != NULL) {
     if (ent->d_type == DT_DIR && atoi(ent->d_name) > 0)
       size++;
@@ -33,6 +32,7 @@ void parse_process_loginuid(struct s_process* process, char* filename) {
   fclose(fp);
 }
 
+/*
 static
 void parse_process_cmdline(struct s_process* process, char* filename) {
   FILE* fp;
@@ -47,6 +47,7 @@ void parse_process_cmdline(struct s_process* process, char* filename) {
   free(str);
   fclose(fp);
 }
+*/
 
 static
 void parse_process_stat(struct s_process* process, char* filename) {
@@ -85,32 +86,48 @@ void parse_process_stat(struct s_process* process, char* filename) {
   fclose(fp);
 }
 
-static
-void parse_process(void** process, int size) {
-  DIR* proc;
-  struct dirent* ent;
+void* parse_process(void* queue) {
+  while (1) {
+    DIR* proc;
+    struct dirent* ent;
 
-  proc = opendir("/Users/jiwon/proc/");
-  *process = malloc(sizeof(struct s_process) * size);
-  int idx = 0;
-  while ((ent = readdir(proc)) != NULL) {
-    int pid;
-    if (ent->d_type == DT_DIR && (pid = atoi(ent->d_name)) > 0) {
-      char filename[MAX];
-      struct s_process* new = *process + sizeof(struct s_process) * idx;
-      new->pid = pid;
-      sprintf(filename, "/Users/jiwon/proc/%s/stat", ent->d_name);
-      parse_process_stat(new, filename);
-      sprintf(filename, "/Users/jiwon/proc/%s/cmdline", ent->d_name);
-      parse_process_cmdline(new, filename);
-      sprintf(filename, "/Users/jiwon/proc/%s/loginuid", ent->d_name);
-      parse_process_loginuid(new, filename);
-      idx++;
+    proc = opendir(PROC_LOCATION);
+
+    int process_size = get_process_size();
+    struct s_packet* packet = malloc(sizeof(struct s_packet));
+    packet->size = sizeof(struct s_header) + sizeof(struct s_process) * process_size;
+    packet->data = malloc(packet->size);
+    packet->next = NULL;
+
+    struct s_header* header = packet->data;
+    header->type_of_body = PROCESS;
+    header->number_of_body = process_size;
+
+    int chunk_idx = 0;
+    while ((ent = readdir(proc)) != NULL) {
+      int pid;
+      if (ent->d_type == DT_DIR && (pid = atoi(ent->d_name)) > 0) {
+        char filename[MAX];
+
+        struct s_process* chunk = packet->data + sizeof(struct s_header) + sizeof(struct s_process) * chunk_idx;
+        chunk->pid = pid;
+        sprintf(filename, "%s%s/stat", PROC_LOCATION, ent->d_name);
+        parse_process_stat(chunk, filename);
+        sprintf(filename, "%s%s/cmdline", PROC_LOCATION, ent->d_name);
+        // parse_process_cmdline(chunk, filename);
+        sprintf(filename, "%s%s/loginuid", PROC_LOCATION, ent->d_name);
+        parse_process_loginuid(chunk, filename);
+        chunk_idx++;
+      }
     }
+    insert_queue(queue, packet);
+
+    closedir(proc);
+
+    sleep(PROCESS);
   }
-  closedir(proc);
+  return (0);
 }
-*/
 
 static
 int get_net_size() {
@@ -119,7 +136,7 @@ int get_net_size() {
   int size = 0;
   char* str = malloc(sizeof(char) * strlen);
 
-  fp = fopen("/Users/jiwon/proc/net/dev", "r");
+  fp = fopen(NET_LOCATION, "r");
   while (getdelim(&str, &strlen, '\n', fp) != EOF) {
     if (!strchr(str, ':'))
       continue;
@@ -138,7 +155,7 @@ void* parse_net(void* queue) {
     size_t strlen = 1;
     char* str = malloc(sizeof(char) * strlen);
 
-    fp = fopen("/Users/jiwon/proc/net/dev", "r");
+    fp = fopen(NET_LOCATION, "r");
 
     int net_size = get_net_size();
     struct s_packet* packet = malloc(sizeof(struct s_packet));
@@ -187,7 +204,7 @@ void* parse_mem(void* queue) {
     size_t strlen = 1;
     char* str = malloc(sizeof(char) * strlen);
 
-    fp = fopen("/Users/jiwon/proc/meminfo", "r");
+    fp = fopen(MEM_LOCATION, "r");
 
     struct s_packet* packet = malloc(sizeof(struct s_packet));
     packet->size = sizeof(struct s_header) + sizeof(struct s_mem);
@@ -227,7 +244,7 @@ void* parse_stat(void* queue) {
     size_t strlen = 1;
     char* str = malloc(sizeof(char) * strlen);
 
-    fp = fopen("/Users/jiwon/proc/stat", "r");
+    fp = fopen(STAT_LOCATION, "r");
 
     struct s_packet* packet = malloc(sizeof(struct s_packet));
     packet->size = sizeof(struct s_header) + sizeof(struct s_stat);

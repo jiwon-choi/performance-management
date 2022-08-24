@@ -10,6 +10,11 @@
 # define NET 3
 # define PROCESS 4
 
+# define STAT_LOCATION "/Users/jiwon/proc/stat"
+# define MEM_LOCATION "/Users/jiwon/proc/meminfo"
+# define NET_LOCATION "/Users/jiwon/proc/net/dev"
+# define PROC_LOCATION "/Users/jiwon/proc/"
+
 # pragma pack(push, 1)
 
 struct s_stat {
