@@ -37,11 +37,10 @@ struct s_process {
   unsigned long   stime;
   char            comm[256];
   char            username[8];
-  char            cmdline[4096][128];
+  char            cmdline[MAX]; // TODO null character -> space 변환해서 통째로!
 };
 
 struct s_header {
-  // char*   time;
   int     net_size;
   int     process_size;
 };
