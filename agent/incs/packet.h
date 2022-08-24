@@ -1,24 +1,24 @@
 #ifndef STRUCT_H_
 # define STRUCT_H_
 
-# define MAX 10000
-
-// enum으로 수정 필요
-# define SEND 0
-# define STAT 1
-# define MEM 2
-# define NET 3
-# define PROCESS 4
-
 # define STAT_LOCATION "/Users/jiwon/proc/stat"
 # define MEM_LOCATION "/Users/jiwon/proc/meminfo"
 # define NET_LOCATION "/Users/jiwon/proc/net/dev"
 # define PROC_LOCATION "/Users/jiwon/proc/"
 
+# define MAX 10000
 # define CMDLINE_MAX 512
 
-# pragma pack(push, 1)
+# define SEND 0
 
+enum type {
+  STAT = 1,
+  MEM,
+  NET,
+  PROCESS,
+};
+
+# pragma pack(push, 1)
 struct s_stat {
   int   user;
   int   sys;
@@ -64,7 +64,6 @@ struct s_packet {
   void*   data;
   struct s_packet* next;
 };
-
 # pragma pack(pop)
 
 #endif

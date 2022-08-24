@@ -121,7 +121,7 @@ void* parse_process(void* queue) {
 
     closedir(proc);
 
-    sleep(PROCESS);
+    sleep(4);
   }
   return (0);
 }
@@ -191,7 +191,7 @@ void* parse_net(void* queue) {
     free(str);
     fclose(fp);
 
-    sleep(NET);
+    sleep(3);
   }
 }
 
@@ -231,7 +231,7 @@ void* parse_mem(void* queue) {
     free(str);
     fclose(fp);
 
-    sleep(MEM);
+    sleep(2);
   }
 }
 
@@ -270,7 +270,7 @@ void* parse_stat(void* queue) {
     free(str);
     fclose(fp);
 
-    sleep(STAT);
+    sleep(1);
   }
   return (0);
 }
