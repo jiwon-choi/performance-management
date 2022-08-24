@@ -7,8 +7,12 @@
 # include <dirent.h>
 # include <string.h>
 # include <pwd.h>
+# include <unistd.h>
 # include "packet.h"
 
-void parse_data(struct s_packet* packet);
+void* parse_stat(void* queue);
+void* parse_mem(void* queue);
+void* parse_net(void* queue);
+// void* parse_process();
 
 #endif

@@ -3,6 +3,13 @@
 
 # define MAX 10000
 
+// enum으로 수정 필요
+# define SEND 0
+# define STAT 1
+# define MEM 2
+# define NET 3
+# define PROCESS 4
+
 # pragma pack(push, 1)
 
 struct s_stat {
@@ -41,20 +48,14 @@ struct s_process {
 };
 
 struct s_header {
-  int     net_size;
-  int     process_size;
-};
-
-struct s_body {
-  struct s_stat   stat;
-  struct s_mem    mem;
-  void*           net;
-  void*           process;
+  int   type_of_body;
+  int   number_of_body;
 };
 
 struct s_packet {
-  struct s_header header;
-  struct s_body   body;
+  int     size;
+  void*   data;
+  struct s_packet* next;
 };
 
 # pragma pack(pop)
