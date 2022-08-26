@@ -27,7 +27,8 @@ void parse_process_loginuid(struct s_process* process, char* filename) {
   getdelim(&str, &size, '\n', fp);
   process->loginuid = atoi(str);
   pwd = getpwuid(process->loginuid);
-  strcpy(process->username, pwd->pw_name);
+  if (pwd)
+    strcpy(process->username, pwd->pw_name);
   free(str);
   fclose(fp);
 }

@@ -42,9 +42,9 @@ struct s_net {
 };
 
 struct s_process {
-  int             pid;
-  int             ppid;
-  int             loginuid;
+  unsigned int    pid;
+  unsigned int    ppid;
+  unsigned int    loginuid;
   long            cutime;
   long            cstime;
   unsigned long   utime;
