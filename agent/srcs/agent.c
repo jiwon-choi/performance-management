@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include "parse.h"
+#include "queue.h"
 
 #define PORT 8080
 
@@ -17,7 +18,7 @@ int connection() {
     exit(EXIT_FAILURE);
   }
 
-  memset(&serv_addr, '\0', sizeof(serv_addr)); // 0!!! 이라니!!!
+  memset(&serv_addr, '\0', sizeof(serv_addr));
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(PORT);
   if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
@@ -32,47 +33,44 @@ int connection() {
   return (sock);
 }
 
-void* print_queue(void* queue) {
+void* send_packet(void* vdata) {
+  struct s_send_data* data = (struct s_send_data*)vdata;
+
   while (1) {
-    struct s_packet* p = *(struct s_packet**)queue;
-    if (!p) {
+    if (!data->queue) {
       printf("~~~~ queue is empty\n");
-      sleep(3);
+      sleep(1);
       continue;
     }
 
-    int idx = 0;
-    while (p) {
-      struct s_header* header = p->data;
-      if (header->type_of_body == STAT) {
-        printf("~~~ print queue %d STAT!\n", idx);
-      } else if (header->type_of_body == MEM) {
-        printf("~~~ print queue %d MEM!\n", idx);
-      } else if (header->type_of_body == NET) {
-        printf("~~~ print queue %d NET!\n", idx);
-      } else if (header->type_of_body == PROCESS) {
-        printf("~~~ print queue %d PROCESS!\n", idx);
-      }
-      p = p->next;
-      idx++;
+    struct s_packet* pop = pop_queue(&(data->queue));
+    struct s_header* header = pop->data;
+    if (header->type_of_body == STAT) {
+      printf("~~~ pop data is STAT!\n");
+    } else if (header->type_of_body == MEM) {
+      printf("~~~ pop data is MEM!\n");
+    } else if (header->type_of_body == NET) {
+      printf("~~~ pop data is NET!\n");
+    } else if (header->type_of_body == PROCESS) {
+      printf("~~~ pop data is PROCESS!\n");
     }
-    printf("\n");
-    sleep(3);
+    // write(data->socket, pop->data, pop->size);
   }
   return (0);
 }
 
 int main() {
-  struct s_packet* queue = NULL;
   pthread_t tid[5];
+  struct s_send_data    data;
 
-  // int sock = connection();
+  data.queue = NULL;
+  // data.socket = connection();
 
-  pthread_create(&tid[STAT], NULL, parse_stat, &queue);
-  pthread_create(&tid[MEM], NULL, parse_mem, &queue);
-  pthread_create(&tid[NET], NULL, parse_net, &queue);
-  pthread_create(&tid[PROCESS], NULL, parse_process, &queue);
-  pthread_create(&tid[SEND], NULL, print_queue, &queue);
+  pthread_create(&tid[STAT], NULL, parse_stat, &data.queue);
+  pthread_create(&tid[MEM], NULL, parse_mem, &data.queue);
+  pthread_create(&tid[NET], NULL, parse_net, &data.queue);
+  pthread_create(&tid[PROCESS], NULL, parse_process, &data.queue);
+  pthread_create(&tid[SEND], NULL, send_packet, &data);
 
   pthread_join(tid[STAT], NULL);
   pthread_join(tid[MEM], NULL);

@@ -64,6 +64,11 @@ struct s_packet {
   void*   data;
   struct s_packet* next;
 };
+
+struct s_send_data {
+  int               socket;
+  struct s_packet*  queue;
+};
 # pragma pack(pop)
 
 #endif
