@@ -1,6 +1,8 @@
 #ifndef PACKET_H_
 # define PACKET_H_
 
+# include <pthread.h>
+
 # define STAT_LOCATION "/Users/jiwon/proc/stat"
 # define MEM_LOCATION "/Users/jiwon/proc/meminfo"
 # define NET_LOCATION "/Users/jiwon/proc/net/dev"
@@ -68,6 +70,7 @@ struct s_packet {
 struct s_thread_param {
   int               socket;
   struct s_packet*  queue;
+  pthread_mutex_t   queue_mutex;
 };
 # pragma pack(pop)
 

@@ -58,7 +58,9 @@ void* recv_packet(void* vparam) {
       packet->next = NULL;
       rd_size -= packet->size;
       pbuf += packet->size;
+      pthread_mutex_lock(&(param->queue_mutex));
       insert_queue(&param->queue, packet);
+      pthread_mutex_unlock(&(param->queue_mutex));
     }
   }
   if (rd_size < 0)
@@ -67,13 +69,16 @@ void* recv_packet(void* vparam) {
 }
 
 void* run_worker(void* vparam) {
-  struct s_packet** queue = (struct s_packet**)vparam;
+  struct s_thread_param* param = (struct s_thread_param*)vparam;
+
   while (1) {
-    if (!*queue) {
+    if (!param->queue) {
       sleep(1);
       continue;
     }
-    struct s_packet* pop = pop_queue(queue);
+    pthread_mutex_lock(&(param->queue_mutex));
+    struct s_packet* pop = pop_queue(&(param->queue));
+    pthread_mutex_unlock(&(param->queue_mutex));
     struct s_header* header = pop->data;
     if (header->type_of_body == STAT) {
       get_stat(pop);
@@ -84,8 +89,10 @@ void* run_worker(void* vparam) {
     } else if (header->type_of_body == PROCESS) {
       get_process(pop);
     }
+    free(pop->data);
+    pop->data = NULL;
+    free(pop);
   }
-  
   return (0);
 }
 
@@ -97,8 +104,10 @@ int main(void) {
   int addr_size = sizeof(address);
   struct s_thread_param data;
   data.queue = NULL;
+  pthread_mutex_init(&data.queue_mutex, NULL);
+
   pthread_t tid;
-  pthread_create(&tid, NULL, run_worker, &data.queue);
+  pthread_create(&tid, NULL, run_worker, &data);
   pthread_detach(tid);
 
   while (1) {

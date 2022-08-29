@@ -1,5 +1,4 @@
 #include "parse.h"
-#include "queue.h"
 
 static
 int get_process_size() {
@@ -33,7 +32,6 @@ void parse_process_loginuid(struct s_process* process, char* filename) {
   fclose(fp);
 }
 
-// TODO 좀비 프로세스의 경우 cmdline이 비어있는 건지 cmdline 파일 자체가 없는 건지 확인
 static
 void parse_process_cmdline(struct s_process* process, char* filename) {
   int fd = open(filename, O_RDONLY);
@@ -84,7 +82,9 @@ void parse_process_stat(struct s_process* process, char* filename) {
   fclose(fp);
 }
 
-void* parse_process(void* queue) {
+void* parse_process(void* vparam) {
+  struct s_thread_param* param = vparam;
+
   while (1) {
     DIR* proc;
     struct dirent* ent;
@@ -118,7 +118,9 @@ void* parse_process(void* queue) {
         chunk_idx++;
       }
     }
-    insert_queue(queue, packet);
+    pthread_mutex_lock(&(param->queue_mutex));
+    insert_queue(&(param->queue), packet);
+    pthread_mutex_unlock(&(param->queue_mutex));
 
     closedir(proc);
 
@@ -147,7 +149,9 @@ int get_net_size() {
   return (size);
 }
 
-void* parse_net(void* queue) {
+void* parse_net(void* vparam) {
+  struct s_thread_param* param = vparam;
+
   while (1) {
     FILE* fp;
     size_t strlen = 1;
@@ -187,7 +191,9 @@ void* parse_net(void* queue) {
       chunk->transmit_packets = atoi(word);
       chunk_idx++;
     }
-    insert_queue(queue, packet);
+    pthread_mutex_lock(&(param->queue_mutex));
+    insert_queue(&(param->queue), packet);
+    pthread_mutex_unlock(&(param->queue_mutex));
 
     free(str);
     fclose(fp);
@@ -196,7 +202,9 @@ void* parse_net(void* queue) {
   }
 }
 
-void* parse_mem(void* queue) {
+void* parse_mem(void* vparam) {
+  struct s_thread_param* param = vparam;
+
   while (1) {
     FILE* fp;
     size_t strlen = 1;
@@ -227,7 +235,9 @@ void* parse_mem(void* queue) {
         body->swap_free = atoi(strtok(NULL, " "));
       }
     }
-    insert_queue(queue, packet);
+    pthread_mutex_lock(&(param->queue_mutex));
+    insert_queue(&(param->queue), packet);
+    pthread_mutex_unlock(&(param->queue_mutex));
 
     free(str);
     fclose(fp);
@@ -236,7 +246,9 @@ void* parse_mem(void* queue) {
   }
 }
 
-void* parse_stat(void* queue) {
+void* parse_stat(void* vparam) {
+  struct s_thread_param* param = vparam;
+
   while (1) {
     FILE* fp;
     size_t strlen = 1;
@@ -266,7 +278,9 @@ void* parse_stat(void* queue) {
     body->idle = atoi(word);
     word = strtok(NULL, " ");
     body->iowait = atoi(word);
-    insert_queue(queue, packet);
+    pthread_mutex_lock(&(param->queue_mutex));
+    insert_queue(&(param->queue), packet);
+    pthread_mutex_unlock(&(param->queue_mutex));
 
     free(str);
     fclose(fp);

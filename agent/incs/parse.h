@@ -8,11 +8,13 @@
 # include <string.h>
 # include <pwd.h>
 # include <unistd.h>
-# include "packet.h"
 
-void* parse_stat(void* queue);
-void* parse_mem(void* queue);
-void* parse_net(void* queue);
-void* parse_process(void* queue);
+# include "packet.h"
+# include "queue.h"
+
+void* parse_stat(void* vparam);
+void* parse_mem(void* vparam);
+void* parse_net(void* vparam);
+void* parse_process(void* vparam);
 
 #endif
