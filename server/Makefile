@@ -8,7 +8,8 @@ INCS_DIR		= ./incs/
 SRCS_DIR		= ./srcs/
 OBJS_DIR		= ./objs/
 
-SRC			= server.c \
+SRC			= get.c \
+					server.c \
 					queue.c
 
 SRCS		= $(addprefix $(SRCS_DIR), $(SRC))

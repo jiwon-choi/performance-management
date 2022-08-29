@@ -7,6 +7,7 @@
 #include <pthread.h>
 
 #include "queue.h"
+#include "get.h"
 
 #define PORT 8080
 
@@ -57,21 +58,34 @@ void* recv_packet(void* vparam) {
       packet->next = NULL;
       rd_size -= packet->size;
       pbuf += packet->size;
-
-      if (header->type_of_body == STAT) {
-        printf("~~~ pop data is STAT!\n");
-      } else if (header->type_of_body == MEM) {
-        printf("~~~ pop data is MEM!\n");
-      } else if (header->type_of_body == NET) {
-        printf("~~~ pop data is NET!\n");
-      } else if (header->type_of_body == PROCESS) {
-        printf("~~~ pop data is PROCESS!\n");
-      }
       insert_queue(&param->queue, packet);
     }
   }
   if (rd_size < 0)
     exit(EXIT_FAILURE);
+  return (0);
+}
+
+void* run_worker(void* vparam) {
+  struct s_packet** queue = (struct s_packet**)vparam;
+  while (1) {
+    if (!*queue) {
+      sleep(1);
+      continue;
+    }
+    struct s_packet* pop = pop_queue(queue);
+    struct s_header* header = pop->data;
+    if (header->type_of_body == STAT) {
+      get_stat(pop);
+    } else if (header->type_of_body == MEM) {
+      get_mem(pop);
+    } else if (header->type_of_body == NET) {
+      get_net(pop);
+    } else if (header->type_of_body == PROCESS) {
+      get_process(pop);
+    }
+  }
+  
   return (0);
 }
 
@@ -82,7 +96,10 @@ int main(void) {
 
   int addr_size = sizeof(address);
   struct s_thread_param data;
+  data.queue = NULL;
   pthread_t tid;
+  pthread_create(&tid, NULL, run_worker, &data.queue);
+  pthread_detach(tid);
 
   while (1) {
     printf("[start listen...]\n");
@@ -92,23 +109,6 @@ int main(void) {
     pthread_create(&tid, NULL, recv_packet, &data);
     pthread_detach(tid);
   }
-
-    /*
-    {
-    printf("stat : %d %d %d %d\n", packet.body.stat.user, packet.body.stat.sys, packet.body.stat.idle, packet.body.stat.iowait);
-    printf("mem : %d %d %d %d\n", packet.body.mem.mem_total, packet.body.mem.mem_free, packet.body.mem.swap_total, packet.body.mem.swap_free);
-    for (int i = 0; i < packet.header.net_size; i++) {
-      struct s_net* p = packet.body.net + sizeof(struct s_net) * i;
-      printf("net %d : %s %d %d %d %d\n", i, p->interface, p->receive_bytes, p->receive_packets, p->transmit_bytes, p->transmit_packets);
-    }
-    for (int i = 0; i < packet.header.process_size; i++) {
-      struct s_process* p = packet.body.process + sizeof(struct s_process) * i;
-      printf("process %d : %s %d %lu %lu %ld %ld %s\n", p->pid, p->comm, p->ppid, p->utime, p->stime, p->cutime, p->cstime, p->username);
-      printf("process %d : %s %s\n", p->pid, p->cmdline[0], p->cmdline[1]);
-    }
-    printf("-------------------------------------\n");
-    }
-    */
 
   return (0);
 }
