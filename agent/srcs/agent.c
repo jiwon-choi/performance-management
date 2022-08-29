@@ -33,12 +33,11 @@ int connection() {
   return (sock);
 }
 
-void* send_packet(void* vdata) {
-  struct s_send_data* data = (struct s_send_data*)vdata;
+void* send_packet(void* vparam) {
+  struct s_thread_param* data = (struct s_thread_param*)vparam;
 
   while (1) {
     if (!data->queue) {
-      printf("~~~~ queue is empty\n");
       sleep(1);
       continue;
     }
@@ -54,17 +53,20 @@ void* send_packet(void* vdata) {
     } else if (header->type_of_body == PROCESS) {
       printf("~~~ pop data is PROCESS!\n");
     }
-    // write(data->socket, pop->data, pop->size);
+    if (write(data->socket, pop->data, pop->size) < 0) {
+      printf("server closed\n");
+      exit(EXIT_FAILURE);
+    }
   }
   return (0);
 }
 
 int main() {
   pthread_t tid[5];
-  struct s_send_data    data;
+  struct s_thread_param data;
 
   data.queue = NULL;
-  // data.socket = connection();
+  data.socket = connection();
 
   pthread_create(&tid[STAT], NULL, parse_stat, &data.queue);
   pthread_create(&tid[MEM], NULL, parse_mem, &data.queue);

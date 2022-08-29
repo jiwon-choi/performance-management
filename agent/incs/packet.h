@@ -1,5 +1,5 @@
-#ifndef STRUCT_H_
-# define STRUCT_H_
+#ifndef PACKET_H_
+# define PACKET_H_
 
 # define STAT_LOCATION "/Users/jiwon/proc/stat"
 # define MEM_LOCATION "/Users/jiwon/proc/meminfo"
@@ -65,7 +65,7 @@ struct s_packet {
   struct s_packet* next;
 };
 
-struct s_send_data {
+struct s_thread_param {
   int               socket;
   struct s_packet*  queue;
 };
