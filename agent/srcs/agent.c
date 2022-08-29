@@ -80,22 +80,5 @@ int main() {
   pthread_join(tid[PROCESS], NULL);
   pthread_join(tid[SEND], NULL);
 
-  /*
-  {
-  // printf("header : net %d, process %d \n", packet.header.net_size, packet.header.process_size);
-  printf("stat : %d %d %d %d\n", packet.body.stat.user, packet.body.stat.sys, packet.body.stat.idle, packet.body.stat.iowait);
-  printf("mem : %d %d %d %d\n", packet.body.mem.mem_total, packet.body.mem.mem_free, packet.body.mem.swap_total, packet.body.mem.swap_free);
-  for (int i = 0; i < packet.header.net_size; i++) {
-    struct s_net* p = packet.body.net + sizeof(struct s_net) * i;
-    printf("net %d : %s %d %d %d %d\n", i, p->interface, p->receive_bytes, p->receive_packets, p->transmit_bytes, p->transmit_packets);
-  }
-  for (int i = 0; i < packet.header.process_size; i++) {
-    struct s_process* p = packet.body.process + sizeof(struct s_process) * i;
-    printf("process %d : %s %d %lu %lu %ld %ld %s\n", p->pid, p->comm, p->ppid, p->utime, p->stime, p->cutime, p->cstime, p->username);
-    printf("process %d : %s %s\n", p->pid, p->cmdline[0], p->cmdline[1]);
-  }
-  printf("-------------------------------------\n");
-  }
-  */
   return (0);
 }
