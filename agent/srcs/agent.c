@@ -34,18 +34,19 @@ void* send_packet(void* vparam) {
     pthread_mutex_lock(&(param->queue_mutex));
     struct s_packet* pop = pop_queue(&(param->queue));
     pthread_mutex_unlock(&(param->queue_mutex));
+
     struct s_header* header = pop->data;
     if (header->type_of_body == STAT) {
-      printf("~~~ pop data is STAT!\n");
+      printf("send STAT!\n");
     } else if (header->type_of_body == MEM) {
-      printf("~~~ pop data is MEM!\n");
+      printf("send MEM!\n");
     } else if (header->type_of_body == NET) {
-      printf("~~~ pop data is NET!\n");
+      printf("send NET!\n");
     } else if (header->type_of_body == PROCESS) {
-      printf("~~~ pop data is PROCESS!\n");
+      printf("send PROCESS!\n");
     }
     if (write(param->socket, pop->data, pop->size) < 0) {
-      printf("server closed\n");
+      printf("!! server closed\n");
       exit(EXIT_FAILURE);
     }
     free(pop->data);
