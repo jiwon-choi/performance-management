@@ -19,11 +19,11 @@ static
 void parse_process_loginuid(struct s_process* process, char* filename) {
   FILE* fp;
   struct passwd* pwd;
-  size_t size = 1;
-  char* str = malloc(sizeof(char) * size);
+  size_t strlen = 0;
+  char* str = NULL;
 
   fp = fopen(filename, "r");
-  getdelim(&str, &size, '\n', fp);
+  getdelim(&str, &strlen, '\n', fp);
   process->loginuid = atoi(str);
   pwd = getpwuid(process->loginuid);
   if (pwd)
@@ -48,15 +48,16 @@ void parse_process_cmdline(struct s_process* process, char* filename) {
 static
 void parse_process_stat(struct s_process* process, char* filename) {
   FILE* fp;
-  size_t size = 1;
-  char* str = malloc(sizeof(char) * size);
+  size_t strlen = 0;
+  char* str = NULL;
+  char* save = NULL;
 
   fp = fopen(filename, "r");
-  getdelim(&str, &size, '\n', fp);
+  getdelim(&str, &strlen, '\n', fp);
 
-  char* word = strtok(str, " ");
+  char* word = strtok_r(str, " ", &save);
   for (int idx = 2; idx < 18; idx++) {
-    word = strtok(NULL, "( )");
+    word = strtok_r(NULL, "( )", &save);
     switch (idx) {
     case 2:
       strcpy(process->comm, word);
@@ -124,7 +125,7 @@ void* parse_process(void* vparam) {
 
     closedir(proc);
 
-    sleep(4);
+    // sleep(4);
   }
   return (0);
 }
@@ -132,15 +133,16 @@ void* parse_process(void* vparam) {
 static
 int get_net_size() {
   FILE* fp;
-  size_t strlen = 1;
+  size_t strlen = 0;
   int size = 0;
-  char* str = malloc(sizeof(char) * strlen);
+  char* str = NULL;
+  char* save = NULL;
 
   fp = fopen(NET_LOCATION, "r");
   while (getdelim(&str, &strlen, '\n', fp) != EOF) {
     if (!strchr(str, ':'))
       continue;
-    if (strcmp(strtok(str, " :"), "lo") == 0)
+    if (strcmp(strtok_r(str, " :", &save), "lo") == 0)
       continue;
     size++;
   }
@@ -154,8 +156,9 @@ void* parse_net(void* vparam) {
 
   while (1) {
     FILE* fp;
-    size_t strlen = 1;
-    char* str = malloc(sizeof(char) * strlen);
+    size_t strlen = 0;
+    char* str = NULL;
+    char* save = NULL;
 
     fp = fopen(NET_LOCATION, "r");
 
@@ -174,20 +177,20 @@ void* parse_net(void* vparam) {
       if (!strchr(str, ':'))
         continue;
 
-      char* word = strtok(str, " :");
+      char* word = strtok_r(str, " :", &save);
       if (strcmp(word, "lo") == 0) continue;
 
       struct s_net* chunk = packet->data + sizeof(struct s_header) + sizeof(struct s_net) * chunk_idx;
 
       strcpy(chunk->interface, word);
-      word = strtok(NULL, " ");
+      word = strtok_r(NULL, " ", &save);
       chunk->receive_bytes = atoi(word);
-      word = strtok(NULL, " ");
+      word = strtok_r(NULL, " ", &save);
       chunk->receive_packets = atoi(word);
       for (int i = 0; i < 7; i++)
-        word = strtok(NULL, " ");
+        word = strtok_r(NULL, " ", &save);
       chunk->transmit_bytes = atoi(word);
-      word = strtok(NULL, " ");
+      word = strtok_r(NULL, " ", &save);
       chunk->transmit_packets = atoi(word);
       chunk_idx++;
     }
@@ -198,7 +201,7 @@ void* parse_net(void* vparam) {
     free(str);
     fclose(fp);
 
-    sleep(3);
+    // sleep(3);
   }
 }
 
@@ -207,8 +210,9 @@ void* parse_mem(void* vparam) {
 
   while (1) {
     FILE* fp;
-    size_t strlen = 1;
-    char* str = malloc(sizeof(char) * strlen);
+    size_t strlen = 0;
+    char* str = NULL;
+    char* save = NULL;
 
     fp = fopen(MEM_LOCATION, "r");
 
@@ -224,15 +228,15 @@ void* parse_mem(void* vparam) {
     struct s_mem*     body = packet->data + sizeof(struct s_header);
 
     while (getdelim(&str, &strlen, '\n', fp) != EOF) {
-      char* word = strtok(str, " :");
+      char* word = strtok_r(str, " :", &save);
       if (strcmp(word, "MemTotal") == 0) {
-        body->mem_total = atoi(strtok(NULL, " "));
+        body->mem_total = atoi(strtok_r(NULL, " ", &save));
       } else if (strcmp(word, "MemFree") == 0) {
-        body->mem_free = atoi(strtok(NULL, " "));
+        body->mem_free = atoi(strtok_r(NULL, " ", &save));
       } else if (strcmp(word, "SwapTotal") == 0) {
-        body->swap_total = atoi(strtok(NULL, " "));
+        body->swap_total = atoi(strtok_r(NULL, " ", &save));
       } else if (strcmp(word, "SwapFree") == 0) {
-        body->swap_free = atoi(strtok(NULL, " "));
+        body->swap_free = atoi(strtok_r(NULL, " ", &save));
       }
     }
     pthread_mutex_lock(&(param->queue_mutex));
@@ -242,7 +246,7 @@ void* parse_mem(void* vparam) {
     free(str);
     fclose(fp);
 
-    sleep(2);
+    // sleep(2);
   }
 }
 
@@ -251,8 +255,9 @@ void* parse_stat(void* vparam) {
 
   while (1) {
     FILE* fp;
-    size_t strlen = 1;
-    char* str = malloc(sizeof(char) * strlen);
+    size_t strlen = 0;
+    char* str = NULL;
+    char* save = NULL;
 
     fp = fopen(STAT_LOCATION, "r");
 
@@ -268,15 +273,15 @@ void* parse_stat(void* vparam) {
     struct s_stat*    body = packet->data + sizeof(struct s_header);
     getdelim(&str, &strlen, '\n', fp);
 
-    char* word = strtok(str, " ");
-    word = strtok(NULL, " ");
+    char* word = strtok_r(str, " ", &save);
+    word = strtok_r(NULL, " ", &save);
     body->user = atoi(word);
-    word = strtok(NULL, " ");
-    word = strtok(NULL, " ");
+    word = strtok_r(NULL, " ", &save);
+    word = strtok_r(NULL, " ", &save);
     body->sys = atoi(word);
-    word = strtok(NULL, " ");
+    word = strtok_r(NULL, " ", &save);
     body->idle = atoi(word);
-    word = strtok(NULL, " ");
+    word = strtok_r(NULL, " ", &save);
     body->iowait = atoi(word);
     pthread_mutex_lock(&(param->queue_mutex));
     insert_queue(&(param->queue), packet);
@@ -285,7 +290,7 @@ void* parse_stat(void* vparam) {
     free(str);
     fclose(fp);
 
-    sleep(1);
+    // sleep(1);
   }
   return (0);
 }

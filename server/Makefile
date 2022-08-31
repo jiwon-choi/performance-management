@@ -1,6 +1,6 @@
 TARGET			= server
 
-CC					= gcc
+CC					= gcc -fsanitize=address -g
 CFLAGS			= -Wall -Werror -Wextra
 RM					= rm -rf
 
