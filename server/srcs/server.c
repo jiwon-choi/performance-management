@@ -79,6 +79,7 @@ void* run_worker(void* vparam) {
     pthread_mutex_lock(&(param->queue_mutex));
     struct s_packet* pop = pop_queue(&(param->queue));
     pthread_mutex_unlock(&(param->queue_mutex));
+    if (!pop) continue;
     struct s_header* header = pop->data;
     if (header->type_of_body == STAT) {
       get_stat(pop);
@@ -107,8 +108,10 @@ int main(void) {
   pthread_mutex_init(&data.queue_mutex, NULL);
 
   pthread_t tid;
-  pthread_create(&tid, NULL, run_worker, &data);
-  pthread_detach(tid);
+  for (int i = 0; i < 8; i++) {
+    pthread_create(&tid, NULL, run_worker, &data);
+    pthread_detach(tid);
+  }
 
   while (1) {
     printf("[start listen...]\n");
