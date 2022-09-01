@@ -2,6 +2,7 @@
 # define PACKET_H_
 
 # include <pthread.h>
+# include <time.h>
 
 # define STAT_LOCATION "/Users/jiwon/proc/stat"
 # define MEM_LOCATION "/Users/jiwon/proc/meminfo"
@@ -57,8 +58,9 @@ struct s_process {
 };
 
 struct s_header {
-  int   type_of_body;
-  int   number_of_body;
+  struct tm   time;
+  int         type_of_body;
+  int         number_of_body;
 };
 
 struct s_packet {
