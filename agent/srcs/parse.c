@@ -89,7 +89,7 @@ void* parse_process(void* vparam) {
   while (1) {
     DIR* proc;
     struct dirent* ent;
-    time_t rawTime = time(NULL);
+    time_t raw_time = time(&raw_time);
 
     proc = opendir(PROC_LOCATION);
 
@@ -100,9 +100,7 @@ void* parse_process(void* vparam) {
     packet->next = NULL;
 
     struct s_header* header = packet->data;
-    memcpy(&(header->time), localtime(&rawTime), sizeof(struct tm));
-    header->time.tm_year += 1900;
-    header->time.tm_mon += 1;
+    strlcpy(header->time, ctime(&raw_time), 25);
     header->type_of_body = PROCESS;
     header->number_of_body = process_size;
 
@@ -163,7 +161,7 @@ void* parse_net(void* vparam) {
     size_t strlen = 0;
     char* str = NULL;
     char* save = NULL;
-    time_t rawTime = time(NULL);
+    time_t raw_time = time(&raw_time);
 
     fp = fopen(NET_LOCATION, "r");
 
@@ -174,9 +172,7 @@ void* parse_net(void* vparam) {
     packet->next = NULL;
 
     struct s_header* header = packet->data;
-    memcpy(&(header->time), localtime(&rawTime), sizeof(struct tm));
-    header->time.tm_year += 1900;
-    header->time.tm_mon += 1;
+    strlcpy(header->time, ctime(&raw_time), 25);
     header->type_of_body = NET;
     header->number_of_body = net_size;
 
@@ -221,7 +217,7 @@ void* parse_mem(void* vparam) {
     size_t strlen = 0;
     char* str = NULL;
     char* save = NULL;
-    time_t rawTime = time(NULL);
+    time_t raw_time = time(&raw_time);
 
     fp = fopen(MEM_LOCATION, "r");
 
@@ -231,9 +227,7 @@ void* parse_mem(void* vparam) {
     packet->next = NULL;
 
     struct s_header*  header = packet->data;
-    memcpy(&(header->time), localtime(&rawTime), sizeof(struct tm));
-    header->time.tm_year += 1900;
-    header->time.tm_mon += 1;
+    strlcpy(header->time, ctime(&raw_time), 25);
     header->type_of_body = MEM;
     header->number_of_body = 1;
 
@@ -270,7 +264,7 @@ void* parse_stat(void* vparam) {
     size_t strlen = 0;
     char* str = NULL;
     char* save = NULL;
-    time_t rawTime = time(NULL);
+    time_t raw_time = time(&raw_time);
 
     fp = fopen(STAT_LOCATION, "r");
 
@@ -280,9 +274,7 @@ void* parse_stat(void* vparam) {
     packet->next = NULL;
 
     struct s_header*  header = packet->data;
-    memcpy(&(header->time), localtime(&rawTime), sizeof(struct tm));
-    header->time.tm_year += 1900;
-    header->time.tm_mon += 1;
+    strlcpy(header->time, ctime(&raw_time), 25);
     header->type_of_body = STAT;
     header->number_of_body = 1;
 

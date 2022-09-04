@@ -58,9 +58,9 @@ struct s_process {
 };
 
 struct s_header {
-  struct tm   time;
-  int         type_of_body;
-  int         number_of_body;
+  char    time[25];
+  int     type_of_body;
+  int     number_of_body;
 };
 
 struct s_packet {

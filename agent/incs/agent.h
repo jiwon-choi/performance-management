@@ -12,6 +12,6 @@
 # include "parse.h"
 # include "queue.h"
 
-# define PORT 8080
+# define PORT 4242
 
 #endif

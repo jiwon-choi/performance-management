@@ -75,13 +75,13 @@ void* run_worker(void* vparam) {
     if (!pop) continue;
     struct s_header* header = pop->data;
     if (header->type_of_body == STAT) {
-      get_stat(pop);
+      save_stat(pop);
     } else if (header->type_of_body == MEM) {
-      get_mem(pop);
+      save_mem(pop);
     } else if (header->type_of_body == NET) {
-      get_net(pop);
+      save_net(pop);
     } else if (header->type_of_body == PROCESS) {
-      get_process(pop);
+      save_process(pop);
     }
     free(pop->data);
     pop->data = NULL;

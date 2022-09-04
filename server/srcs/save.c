@@ -3,7 +3,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-void get_stat(struct s_packet* packet) {
+void save_stat(struct s_packet* packet) {
   FILE* fp = fopen("files/data/stat", "a+");
   if (!fp) {
     mkdir("files/data", 0777);
@@ -13,15 +13,14 @@ void get_stat(struct s_packet* packet) {
   struct s_header* header = packet->data;
   struct s_stat* body = packet->data + sizeof(struct s_header);
 
-  fprintf(fp, "%4d-%02d-%02d %02d:%02d:%02d | ",
-          header->time.tm_year, header->time.tm_mon, header->time.tm_mday, header->time.tm_hour, header->time.tm_min, header->time.tm_sec);
+  fprintf(fp, "[%s] ", header->time);
   fprintf(fp, "user %d | sys %d | idle %d | iowait %d",
           body->user, body->sys, body->idle, body->iowait);
   fprintf(fp, "\n");
   fclose(fp);
 }
 
-void get_mem(struct s_packet* packet) {
+void save_mem(struct s_packet* packet) {
   FILE* fp = fopen("files/data/mem", "a+");
   if (!fp) {
     mkdir("files/data", 0777);
@@ -31,15 +30,14 @@ void get_mem(struct s_packet* packet) {
   struct s_header* header = packet->data;
   struct s_mem* body = packet->data + sizeof(struct s_header);
 
-  fprintf(fp, "%4d-%02d-%02d %02d:%02d:%02d | ",
-          header->time.tm_year, header->time.tm_mon, header->time.tm_mday, header->time.tm_hour, header->time.tm_min, header->time.tm_sec);
+  fprintf(fp, "[%s] ", header->time);
   fprintf(fp, "memtotal %d | memfree %d | swaptotal %d | swapfree %d",
           body->mem_total, body->mem_free, body->swap_total, body->swap_free);
   fprintf(fp, "\n");
   fclose(fp);
 }
 
-void get_net(struct s_packet* packet) {
+void save_net(struct s_packet* packet) {
   FILE* fp = fopen("files/data/net", "a+");
   if (!fp) {
     mkdir("files/data", 0777);
@@ -50,8 +48,7 @@ void get_net(struct s_packet* packet) {
 
   for (int idx = 0; idx < header->number_of_body; idx++) {
     struct s_net* chunk = packet->data + sizeof(struct s_header) + sizeof(struct s_net) * idx;
-    fprintf(fp, "%4d-%02d-%02d %02d:%02d:%02d | ",
-            header->time.tm_year, header->time.tm_mon, header->time.tm_mday, header->time.tm_hour, header->time.tm_min, header->time.tm_sec);
+    fprintf(fp, "[%s] ", header->time);
     fprintf(fp, "interface %s | Rbytes %d | Rpackets %d | Tbytes %d | Tpackets %d",
             chunk->interface, chunk->receive_bytes, chunk->receive_packets, chunk->transmit_bytes, chunk->transmit_packets);
     fprintf(fp, "\n");
@@ -59,7 +56,7 @@ void get_net(struct s_packet* packet) {
   fclose(fp);
 }
 
-void get_process(struct s_packet* packet) {
+void save_process(struct s_packet* packet) {
   FILE* fp = fopen("files/data/process", "a+");
   if (!fp) {
     mkdir("files/data", 0777);
@@ -69,8 +66,7 @@ void get_process(struct s_packet* packet) {
 
   for (int idx = 0; idx < header->number_of_body; idx++) {
     struct s_process* chunk = packet->data + sizeof(struct s_header) + sizeof(struct s_process) * idx;
-    fprintf(fp, "%4d-%02d-%02d %02d:%02d:%02d | ",
-            header->time.tm_year, header->time.tm_mon, header->time.tm_mday, header->time.tm_hour, header->time.tm_min, header->time.tm_sec);
+    fprintf(fp, "[%s] ", header->time);
     fprintf(fp, "pid %u | ppid %u | loginuid %u | comm %s | username %s | ",
             chunk->pid, chunk->ppid, chunk->loginuid, chunk->comm, chunk->username);
     fprintf(fp, "cutime %ld | cstime %ld | utime %lu | stime %lu | ",
