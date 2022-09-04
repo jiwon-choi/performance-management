@@ -9,6 +9,7 @@ SRCS_DIR		= ./srcs/
 OBJS_DIR		= ./objs/
 
 SRC			= get.c \
+					log.c \
 					server.c \
 					queue.c
 

@@ -1,10 +1,12 @@
 #include "server.h"
 
-int g_stderrFd;
+int g_stdoutFd;
+int g_log_fd;
+pthread_mutex_t g_log_mutex;
 
 void listening(int* server_fd, struct sockaddr_in* address) {
   if ((*server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-    write(g_stderrFd, "[ERROR] socket()\n", 8 + 9);
+    write_log("Error socket()");
     exit(EXIT_FAILURE);
   }
 
@@ -14,11 +16,11 @@ void listening(int* server_fd, struct sockaddr_in* address) {
   memset(address->sin_zero, 0, sizeof(address->sin_zero));
 
   if (bind(*server_fd, (struct sockaddr *)address, sizeof(*address)) < 0) {
-    write(g_stderrFd, "[ERROR] bind()\n", 8 + 7);
+    write_log("Error bind()");
     exit(EXIT_FAILURE);
   }
   if (listen(*server_fd, 20) < 0) {
-    write(g_stderrFd, "[ERROR] listen()\n", 8 + 9);
+    write_log("Error listen()");
     exit(EXIT_FAILURE);
   }
 }
@@ -89,8 +91,27 @@ void* run_worker(void* vparam) {
 }
 
 void signal_handler(int sig) {
-  (void)sig;
-  // if (sig == SIGSEGV)
+  if (sig == SIGINT) {
+    write_log("Signal SIGINT");
+  } else if (sig == SIGQUIT) {
+    write_log("Signal SIGQUIT");
+  } else if (sig == SIGILL) {
+    write_log("Signal SIGILL");
+  } else if (sig == SIGABRT) {
+    write_log("Signal SIGABRT");
+  } else if (sig == SIGIOT) {
+    write_log("Signal SIGIOT");
+  } else if (sig == SIGKILL) {
+    write_log("Signal SIGKILL");
+  } else if (sig == SIGBUS) {
+    write_log("Signal SIGBUS");
+  } else if (sig == SIGSEGV) {
+    write_log("Signal SIGSEGV");
+  } else if (sig == SIGTERM) {
+    write_log("Signal SIGTERM");
+  } else {
+    write_log("Signal another");
+  }
   exit(EXIT_FAILURE);
 }
 
@@ -98,7 +119,7 @@ int main(void) {
   pid_t pid = fork();
 
   if (pid < 0) {
-    write(STDERR_FILENO, "[ERROR] fork()\n", 8 + 7);
+    write(STDERR_FILENO, "Error fork()\n", 13);
     exit(EXIT_FAILURE);
   } else if (pid > 0) {
     exit(EXIT_SUCCESS);
@@ -106,13 +127,26 @@ int main(void) {
 
   signal(SIGHUP, SIG_IGN);
   close(STDIN_FILENO);
+  g_stdoutFd = dup(STDOUT_FILENO);
   close(STDOUT_FILENO);
-  g_stderrFd = dup(STDERR_FILENO);
   close(STDERR_FILENO);
   // chdir("/");
   setsid();
 
+  mkdir("files", 0777);
+  g_log_fd = open("files/log", O_APPEND | O_CREAT | O_WRONLY, 0777);
+  pthread_mutex_init(&g_log_mutex, NULL);
+  write_log("Run server");
+
+  signal(SIGINT, signal_handler);
+  signal(SIGQUIT, signal_handler);
+  signal(SIGILL, signal_handler);
+  signal(SIGABRT, signal_handler);
+  signal(SIGIOT, signal_handler);
+  signal(SIGKILL, signal_handler);
+  signal(SIGBUS, signal_handler);
   signal(SIGSEGV, signal_handler);
+  signal(SIGTERM, signal_handler);
 
   int server_fd;
   struct sockaddr_in address;
@@ -125,17 +159,22 @@ int main(void) {
 
   pthread_t tid;
   for (int i = 0; i < 8; i++) {
+    char buf[20];
     pthread_create(&tid, NULL, run_worker, &data);
     pthread_detach(tid);
+    sprintf(buf, "Create worker no.%d", i + 1);
+    write_log(buf);
   }
 
+  write_log("Start listen");
   while (1) {
-    // write(g_stderrFd, "[start listen...]\n");
     if ((data.socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addr_size)) < 0) {
       exit(EXIT_FAILURE);
     }
+    // TODO write_log("Accept [AGENT_NAME]");
     pthread_create(&tid, NULL, recv_packet, &data);
     pthread_detach(tid);
+    write_log("Create recv");
   }
 
   return (0);

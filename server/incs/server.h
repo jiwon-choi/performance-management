@@ -15,6 +15,7 @@
 
 # include "queue.h"
 # include "get.h"
+# include "log.h"
 
 # define PORT 4242
 

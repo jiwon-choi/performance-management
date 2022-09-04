@@ -3,13 +3,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-extern int g_stderrFd;
-
 void get_stat(struct s_packet* packet) {
-  FILE* fp = fopen("data/stat", "a+");
+  FILE* fp = fopen("files/data/stat", "a+");
   if (!fp) {
-    mkdir("data", 0777);
-    fp = fopen("data/stat", "a+");
+    mkdir("files/data", 0777);
+    fp = fopen("files/data/stat", "a+");
   }
 
   struct s_header* header = packet->data;
@@ -24,10 +22,10 @@ void get_stat(struct s_packet* packet) {
 }
 
 void get_mem(struct s_packet* packet) {
-  FILE* fp = fopen("data/mem", "a+");
+  FILE* fp = fopen("files/data/mem", "a+");
   if (!fp) {
-    mkdir("data", 0777);
-    fp = fopen("data/mem", "a+");
+    mkdir("files/data", 0777);
+    fp = fopen("files/data/mem", "a+");
   }
 
   struct s_header* header = packet->data;
@@ -42,10 +40,10 @@ void get_mem(struct s_packet* packet) {
 }
 
 void get_net(struct s_packet* packet) {
-  FILE* fp = fopen("data/net", "a+");
+  FILE* fp = fopen("files/data/net", "a+");
   if (!fp) {
-    mkdir("data", 0777);
-    fp = fopen("data/net", "a+");
+    mkdir("files/data", 0777);
+    fp = fopen("files/data/net", "a+");
   }
 
   struct s_header* header = packet->data;
@@ -62,10 +60,10 @@ void get_net(struct s_packet* packet) {
 }
 
 void get_process(struct s_packet* packet) {
-  FILE* fp = fopen("data/process", "a+");
+  FILE* fp = fopen("files/data/process", "a+");
   if (!fp) {
-    mkdir("data", 0777);
-    fp = fopen("data/process", "a+");
+    mkdir("files/data", 0777);
+    fp = fopen("files/data/process", "a+");
   }
   struct s_header* header = packet->data;
 
