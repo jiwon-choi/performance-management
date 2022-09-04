@@ -1,11 +1,14 @@
 #include "../../agent/incs/packet.h"
 #include <stdio.h>
 #include <sys/stat.h>
+#include <unistd.h>
+
+extern int g_stderrFd;
 
 void get_stat(struct s_packet* packet) {
   FILE* fp = fopen("data/stat", "a+");
   if (!fp) {
-    mkdir("data/", 0755);
+    mkdir("data", 0777);
     fp = fopen("data/stat", "a+");
   }
 
@@ -23,7 +26,7 @@ void get_stat(struct s_packet* packet) {
 void get_mem(struct s_packet* packet) {
   FILE* fp = fopen("data/mem", "a+");
   if (!fp) {
-    mkdir("data/", 0755);
+    mkdir("data", 0777);
     fp = fopen("data/mem", "a+");
   }
 
@@ -41,7 +44,7 @@ void get_mem(struct s_packet* packet) {
 void get_net(struct s_packet* packet) {
   FILE* fp = fopen("data/net", "a+");
   if (!fp) {
-    mkdir("data/", 0755);
+    mkdir("data", 0777);
     fp = fopen("data/net", "a+");
   }
 
@@ -61,7 +64,7 @@ void get_net(struct s_packet* packet) {
 void get_process(struct s_packet* packet) {
   FILE* fp = fopen("data/process", "a+");
   if (!fp) {
-    mkdir("data/", 0755);
+    mkdir("data", 0777);
     fp = fopen("data/process", "a+");
   }
   struct s_header* header = packet->data;

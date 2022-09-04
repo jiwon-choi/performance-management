@@ -1,19 +1,4 @@
-#include <stdio.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <pthread.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <signal.h>
-#include <fcntl.h>
-
-#include "queue.h"
-#include "get.h"
-
-#define PORT 4242
+#include "server.h"
 
 int g_stderrFd;
 
@@ -103,6 +88,12 @@ void* run_worker(void* vparam) {
   return (0);
 }
 
+void signal_handler(int sig) {
+  (void)sig;
+  // if (sig == SIGSEGV)
+  exit(EXIT_FAILURE);
+}
+
 int main(void) {
   pid_t pid = fork();
 
@@ -118,9 +109,10 @@ int main(void) {
   close(STDOUT_FILENO);
   g_stderrFd = dup(STDERR_FILENO);
   close(STDERR_FILENO);
-  chdir("/");
+  // chdir("/");
   setsid();
 
+  signal(SIGSEGV, signal_handler);
 
   int server_fd;
   struct sockaddr_in address;
