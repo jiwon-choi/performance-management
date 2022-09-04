@@ -5,15 +5,21 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <pthread.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <signal.h>
+#include <fcntl.h>
 
 #include "queue.h"
 #include "get.h"
 
-#define PORT 8080
+#define PORT 4242
+
+int g_stderrFd;
 
 void listening(int* server_fd, struct sockaddr_in* address) {
   if ((*server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-    printf("socket()");
+    write(g_stderrFd, "[ERROR] socket()\n", 8 + 9);
     exit(EXIT_FAILURE);
   }
 
@@ -23,11 +29,11 @@ void listening(int* server_fd, struct sockaddr_in* address) {
   memset(address->sin_zero, 0, sizeof(address->sin_zero));
 
   if (bind(*server_fd, (struct sockaddr *)address, sizeof(*address)) < 0) {
-    printf("bind()");
+    write(g_stderrFd, "[ERROR] bind()\n", 8 + 7);
     exit(EXIT_FAILURE);
   }
   if (listen(*server_fd, 20) < 0) {
-    printf("listen()");
+    write(g_stderrFd, "[ERROR] listen()\n", 8 + 9);
     exit(EXIT_FAILURE);
   }
 }
@@ -98,6 +104,24 @@ void* run_worker(void* vparam) {
 }
 
 int main(void) {
+  pid_t pid = fork();
+
+  if (pid < 0) {
+    write(STDERR_FILENO, "[ERROR] fork()\n", 8 + 7);
+    exit(EXIT_FAILURE);
+  } else if (pid > 0) {
+    exit(EXIT_SUCCESS);
+  }
+
+  signal(SIGHUP, SIG_IGN);
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  g_stderrFd = dup(STDERR_FILENO);
+  close(STDERR_FILENO);
+  chdir("/");
+  setsid();
+
+
   int server_fd;
   struct sockaddr_in address;
   listening(&server_fd, &address);
@@ -114,7 +138,7 @@ int main(void) {
   }
 
   while (1) {
-    printf("[start listen...]\n");
+    // write(g_stderrFd, "[start listen...]\n");
     if ((data.socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addr_size)) < 0) {
       exit(EXIT_FAILURE);
     }
