@@ -1,6 +1,27 @@
 #include "parse.h"
 
 static
+int get_net_size() {
+  FILE* fp;
+  size_t strlen = 0;
+  int size = 0;
+  char* str = NULL;
+  char* save = NULL;
+
+  fp = fopen(NET_LOCATION, "r");
+  while (getdelim(&str, &strlen, '\n', fp) != EOF) {
+    if (!strchr(str, ':'))
+      continue;
+    if (strcmp(strtok_r(str, " :", &save), "lo") == 0)
+      continue;
+    size++;
+  }
+  free(str);
+  fclose(fp);
+  return (size);
+}
+
+static
 int get_process_size() {
   DIR* proc;
   struct dirent* ent;
@@ -83,74 +104,98 @@ void parse_process_stat(struct s_process* process, char* filename) {
   fclose(fp);
 }
 
-void* parse_process(void* vparam) {
+void* parse_stat(void* vparam) {
   struct s_thread_param* param = vparam;
 
   while (1) {
-    DIR* proc;
-    struct dirent* ent;
+    FILE* fp;
+    size_t strlen = 0;
+    char* str = NULL;
+    char* save = NULL;
     time_t raw_time = time(&raw_time);
 
-    proc = opendir(PROC_LOCATION);
+    fp = fopen(STAT_LOCATION, "r");
 
-    int process_size = get_process_size();
     struct s_packet* packet = malloc(sizeof(struct s_packet));
-    packet->size = sizeof(struct s_header) + sizeof(struct s_process) * process_size;
+    packet->size = sizeof(struct s_header) + sizeof(struct s_stat);
     packet->data = malloc(packet->size);
     packet->next = NULL;
 
-    struct s_header* header = packet->data;
+    struct s_header*  header = packet->data;
     strlcpy(header->time, ctime(&raw_time), 25);
-    header->type_of_body = PROCESS;
-    header->number_of_body = process_size;
+    header->type_of_body = STAT;
+    header->number_of_body = 1;
 
-    int chunk_idx = 0;
-    while ((ent = readdir(proc)) != NULL) {
-      int pid;
-      if (ent->d_type == DT_DIR && (pid = atoi(ent->d_name)) > 0) {
-        char filename[MAX];
+    struct s_stat*    body = packet->data + sizeof(struct s_header);
+    getdelim(&str, &strlen, '\n', fp);
 
-        struct s_process* chunk = packet->data + sizeof(struct s_header) + sizeof(struct s_process) * chunk_idx;
-        chunk->pid = pid;
-        sprintf(filename, "%s%s/stat", PROC_LOCATION, ent->d_name);
-        parse_process_stat(chunk, filename);
-        sprintf(filename, "%s%s/cmdline", PROC_LOCATION, ent->d_name);
-        parse_process_cmdline(chunk, filename);
-        sprintf(filename, "%s%s/loginuid", PROC_LOCATION, ent->d_name);
-        parse_process_loginuid(chunk, filename);
-        chunk_idx++;
-      }
-    }
+    char* word = strtok_r(str, " ", &save);
+    word = strtok_r(NULL, " ", &save);
+    body->user = atoi(word);
+    word = strtok_r(NULL, " ", &save);
+    word = strtok_r(NULL, " ", &save);
+    body->sys = atoi(word);
+    word = strtok_r(NULL, " ", &save);
+    body->idle = atoi(word);
+    word = strtok_r(NULL, " ", &save);
+    body->iowait = atoi(word);
     pthread_mutex_lock(&(param->queue_mutex));
-    insert_queue(&(param->queue), packet);
+    enqueue(&(param->queue), packet);
     pthread_mutex_unlock(&(param->queue_mutex));
 
-    closedir(proc);
+    free(str);
+    fclose(fp);
 
     sleep(1);
   }
   return (0);
 }
 
-static
-int get_net_size() {
-  FILE* fp;
-  size_t strlen = 0;
-  int size = 0;
-  char* str = NULL;
-  char* save = NULL;
+void* parse_mem(void* vparam) {
+  struct s_thread_param* param = vparam;
 
-  fp = fopen(NET_LOCATION, "r");
-  while (getdelim(&str, &strlen, '\n', fp) != EOF) {
-    if (!strchr(str, ':'))
-      continue;
-    if (strcmp(strtok_r(str, " :", &save), "lo") == 0)
-      continue;
-    size++;
+  while (1) {
+    FILE* fp;
+    size_t strlen = 0;
+    char* str = NULL;
+    char* save = NULL;
+    time_t raw_time = time(&raw_time);
+
+    fp = fopen(MEM_LOCATION, "r");
+
+    struct s_packet* packet = malloc(sizeof(struct s_packet));
+    packet->size = sizeof(struct s_header) + sizeof(struct s_mem);
+    packet->data = malloc(packet->size);
+    packet->next = NULL;
+
+    struct s_header*  header = packet->data;
+    strlcpy(header->time, ctime(&raw_time), 25);
+    header->type_of_body = MEM;
+    header->number_of_body = 1;
+
+    struct s_mem*     body = packet->data + sizeof(struct s_header);
+
+    while (getdelim(&str, &strlen, '\n', fp) != EOF) {
+      char* word = strtok_r(str, " :", &save);
+      if (strcmp(word, "MemTotal") == 0) {
+        body->mem_total = atoi(strtok_r(NULL, " ", &save));
+      } else if (strcmp(word, "MemFree") == 0) {
+        body->mem_free = atoi(strtok_r(NULL, " ", &save));
+      } else if (strcmp(word, "SwapTotal") == 0) {
+        body->swap_total = atoi(strtok_r(NULL, " ", &save));
+      } else if (strcmp(word, "SwapFree") == 0) {
+        body->swap_free = atoi(strtok_r(NULL, " ", &save));
+      }
+    }
+    pthread_mutex_lock(&(param->queue_mutex));
+    enqueue(&(param->queue), packet);
+    pthread_mutex_unlock(&(param->queue_mutex));
+
+    free(str);
+    fclose(fp);
+
+    sleep(1);
   }
-  free(str);
-  fclose(fp);
-  return (size);
 }
 
 void* parse_net(void* vparam) {
@@ -199,7 +244,7 @@ void* parse_net(void* vparam) {
       chunk_idx++;
     }
     pthread_mutex_lock(&(param->queue_mutex));
-    insert_queue(&(param->queue), packet);
+    enqueue(&(param->queue), packet);
     pthread_mutex_unlock(&(param->queue_mutex));
 
     free(str);
@@ -209,94 +254,49 @@ void* parse_net(void* vparam) {
   }
 }
 
-void* parse_mem(void* vparam) {
+void* parse_process(void* vparam) {
   struct s_thread_param* param = vparam;
 
   while (1) {
-    FILE* fp;
-    size_t strlen = 0;
-    char* str = NULL;
-    char* save = NULL;
+    DIR* proc;
+    struct dirent* ent;
     time_t raw_time = time(&raw_time);
 
-    fp = fopen(MEM_LOCATION, "r");
+    proc = opendir(PROC_LOCATION);
 
+    int process_size = get_process_size();
     struct s_packet* packet = malloc(sizeof(struct s_packet));
-    packet->size = sizeof(struct s_header) + sizeof(struct s_mem);
+    packet->size = sizeof(struct s_header) + sizeof(struct s_process) * process_size;
     packet->data = malloc(packet->size);
     packet->next = NULL;
 
-    struct s_header*  header = packet->data;
+    struct s_header* header = packet->data;
     strlcpy(header->time, ctime(&raw_time), 25);
-    header->type_of_body = MEM;
-    header->number_of_body = 1;
+    header->type_of_body = PROCESS;
+    header->number_of_body = process_size;
 
-    struct s_mem*     body = packet->data + sizeof(struct s_header);
+    int chunk_idx = 0;
+    while ((ent = readdir(proc)) != NULL) {
+      int pid;
+      if (ent->d_type == DT_DIR && (pid = atoi(ent->d_name)) > 0) {
+        char filename[MAX];
 
-    while (getdelim(&str, &strlen, '\n', fp) != EOF) {
-      char* word = strtok_r(str, " :", &save);
-      if (strcmp(word, "MemTotal") == 0) {
-        body->mem_total = atoi(strtok_r(NULL, " ", &save));
-      } else if (strcmp(word, "MemFree") == 0) {
-        body->mem_free = atoi(strtok_r(NULL, " ", &save));
-      } else if (strcmp(word, "SwapTotal") == 0) {
-        body->swap_total = atoi(strtok_r(NULL, " ", &save));
-      } else if (strcmp(word, "SwapFree") == 0) {
-        body->swap_free = atoi(strtok_r(NULL, " ", &save));
+        struct s_process* chunk = packet->data + sizeof(struct s_header) + sizeof(struct s_process) * chunk_idx;
+        chunk->pid = pid;
+        sprintf(filename, "%s%s/stat", PROC_LOCATION, ent->d_name);
+        parse_process_stat(chunk, filename);
+        sprintf(filename, "%s%s/cmdline", PROC_LOCATION, ent->d_name);
+        parse_process_cmdline(chunk, filename);
+        sprintf(filename, "%s%s/loginuid", PROC_LOCATION, ent->d_name);
+        parse_process_loginuid(chunk, filename);
+        chunk_idx++;
       }
     }
     pthread_mutex_lock(&(param->queue_mutex));
-    insert_queue(&(param->queue), packet);
+    enqueue(&(param->queue), packet);
     pthread_mutex_unlock(&(param->queue_mutex));
 
-    free(str);
-    fclose(fp);
-
-    sleep(1);
-  }
-}
-
-void* parse_stat(void* vparam) {
-  struct s_thread_param* param = vparam;
-
-  while (1) {
-    FILE* fp;
-    size_t strlen = 0;
-    char* str = NULL;
-    char* save = NULL;
-    time_t raw_time = time(&raw_time);
-
-    fp = fopen(STAT_LOCATION, "r");
-
-    struct s_packet* packet = malloc(sizeof(struct s_packet));
-    packet->size = sizeof(struct s_header) + sizeof(struct s_stat);
-    packet->data = malloc(packet->size);
-    packet->next = NULL;
-
-    struct s_header*  header = packet->data;
-    strlcpy(header->time, ctime(&raw_time), 25);
-    header->type_of_body = STAT;
-    header->number_of_body = 1;
-
-    struct s_stat*    body = packet->data + sizeof(struct s_header);
-    getdelim(&str, &strlen, '\n', fp);
-
-    char* word = strtok_r(str, " ", &save);
-    word = strtok_r(NULL, " ", &save);
-    body->user = atoi(word);
-    word = strtok_r(NULL, " ", &save);
-    word = strtok_r(NULL, " ", &save);
-    body->sys = atoi(word);
-    word = strtok_r(NULL, " ", &save);
-    body->idle = atoi(word);
-    word = strtok_r(NULL, " ", &save);
-    body->iowait = atoi(word);
-    pthread_mutex_lock(&(param->queue_mutex));
-    insert_queue(&(param->queue), packet);
-    pthread_mutex_unlock(&(param->queue_mutex));
-
-    free(str);
-    fclose(fp);
+    closedir(proc);
 
     sleep(1);
   }

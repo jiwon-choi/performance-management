@@ -10,7 +10,8 @@ OBJS_DIR		= ./objs/
 
 SRC			= agent.c \
 					parse.c \
-					queue.c
+					queue.c \
+					send.c
 
 SRCS		= $(addprefix $(SRCS_DIR), $(SRC))
 OBJS		= $(addprefix $(OBJS_DIR), $(SRC:.c=.o))

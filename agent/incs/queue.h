@@ -1,9 +1,9 @@
 #ifndef QUEUE_H_
 # define QUEUE_H_
 
-# include "packet.h"
+# include "struct.h"
 
-void insert_queue(struct s_packet** head, struct s_packet* new_node);
-struct s_packet* pop_queue(struct s_packet** head);
+void enqueue(struct s_packet** head, struct s_packet* new_node);
+struct s_packet* dequeue(struct s_packet** head);
 
 #endif

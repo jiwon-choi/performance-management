@@ -1,7 +1,6 @@
 #include "queue.h"
-#include <stdio.h>
 
-void insert_queue(struct s_packet** head, struct s_packet* new) {
+void enqueue(struct s_packet** head, struct s_packet* new) {
   struct s_packet* p = *head;
   if (!*head) {
     *head = new;
@@ -12,10 +11,9 @@ void insert_queue(struct s_packet** head, struct s_packet* new) {
     }
     p->next = new;
   }
-  // insert_queue(&(*head)->next, new);
 }
 
-struct s_packet* pop_queue(struct s_packet** head) {
+struct s_packet* dequeue(struct s_packet** head) {
   if (!head || !*head) {
     return (NULL);
   }
