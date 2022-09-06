@@ -115,6 +115,7 @@ Temporary Items
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,visualstudiocode,c
 
+agent/files/
 server/files/
 server/data/
 .vscode/launch.json
