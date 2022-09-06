@@ -57,7 +57,7 @@ static
 void parse_process_cmdline(struct s_process* process, char* filename) {
   int fd = open(filename, O_RDONLY);
   int read_size = read(fd, process->cmdline, CMDLINE_MAX);
-  
+
   process->cmdline[read_size] = '\0';
   for (int i = 0; i < read_size - 1; i++) {
     if (process->cmdline[i] == '\0')
@@ -108,6 +108,8 @@ void* parse_stat(void* vparam) {
   struct s_thread_param* param = vparam;
 
   while (1) {
+    write_log("collect stat");
+
     FILE* fp;
     size_t strlen = 0;
     char* str = NULL;
@@ -121,12 +123,13 @@ void* parse_stat(void* vparam) {
     packet->data = malloc(packet->size);
     packet->next = NULL;
 
-    struct s_header*  header = packet->data;
+    struct s_header* header = packet->data;
+    strlcpy(header->agent_name, g_agent_name, 9);
     strlcpy(header->time, ctime(&raw_time), 25);
     header->type_of_body = STAT;
     header->number_of_body = 1;
 
-    struct s_stat*    body = packet->data + sizeof(struct s_header);
+    struct s_stat* body = packet->data + sizeof(struct s_header);
     getdelim(&str, &strlen, '\n', fp);
 
     char* word = strtok_r(str, " ", &save);
@@ -155,6 +158,8 @@ void* parse_mem(void* vparam) {
   struct s_thread_param* param = vparam;
 
   while (1) {
+    write_log("collect mem");
+
     FILE* fp;
     size_t strlen = 0;
     char* str = NULL;
@@ -168,12 +173,13 @@ void* parse_mem(void* vparam) {
     packet->data = malloc(packet->size);
     packet->next = NULL;
 
-    struct s_header*  header = packet->data;
+    struct s_header* header = packet->data;
+    strlcpy(header->agent_name, g_agent_name, 9);
     strlcpy(header->time, ctime(&raw_time), 25);
     header->type_of_body = MEM;
     header->number_of_body = 1;
 
-    struct s_mem*     body = packet->data + sizeof(struct s_header);
+    struct s_mem* body = packet->data + sizeof(struct s_header);
 
     while (getdelim(&str, &strlen, '\n', fp) != EOF) {
       char* word = strtok_r(str, " :", &save);
@@ -202,6 +208,8 @@ void* parse_net(void* vparam) {
   struct s_thread_param* param = vparam;
 
   while (1) {
+    write_log("collect net");
+
     FILE* fp;
     size_t strlen = 0;
     char* str = NULL;
@@ -217,6 +225,7 @@ void* parse_net(void* vparam) {
     packet->next = NULL;
 
     struct s_header* header = packet->data;
+    strlcpy(header->agent_name, g_agent_name, 9);
     strlcpy(header->time, ctime(&raw_time), 25);
     header->type_of_body = NET;
     header->number_of_body = net_size;
@@ -258,12 +267,13 @@ void* parse_process(void* vparam) {
   struct s_thread_param* param = vparam;
 
   while (1) {
+    write_log("collect process");
+
     DIR* proc;
     struct dirent* ent;
     time_t raw_time = time(&raw_time);
 
     proc = opendir(PROC_LOCATION);
-
     int process_size = get_process_size();
     struct s_packet* packet = malloc(sizeof(struct s_packet));
     packet->size = sizeof(struct s_header) + sizeof(struct s_process) * process_size;
@@ -271,6 +281,7 @@ void* parse_process(void* vparam) {
     packet->next = NULL;
 
     struct s_header* header = packet->data;
+    strlcpy(header->agent_name, g_agent_name, 9);
     strlcpy(header->time, ctime(&raw_time), 25);
     header->type_of_body = PROCESS;
     header->number_of_body = process_size;

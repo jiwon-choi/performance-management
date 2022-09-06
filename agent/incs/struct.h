@@ -58,6 +58,7 @@ enum type {
   };
 
   struct s_header {
+    char    agent_name[9];
     char    time[25];
     int     type_of_body;
     int     number_of_body;

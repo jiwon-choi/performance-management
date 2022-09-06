@@ -9,6 +9,7 @@ SRCS_DIR		= ./srcs/
 OBJS_DIR		= ./objs/
 
 SRC			= agent.c \
+					log.c \
 					parse.c \
 					queue.c \
 					send.c
