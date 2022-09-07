@@ -12,7 +12,8 @@ SRC			= agent.c \
 					log.c \
 					parse.c \
 					queue.c \
-					send.c
+					send.c \
+					sig.c
 
 SRCS		= $(addprefix $(SRCS_DIR), $(SRC))
 OBJS		= $(addprefix $(OBJS_DIR), $(SRC:.c=.o))

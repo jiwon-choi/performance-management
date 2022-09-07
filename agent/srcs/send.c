@@ -1,5 +1,7 @@
 #include "send.h"
 
+int g_new_socket;
+
 void* send_packet(void* vparam) {
   struct s_thread_param* param = (struct s_thread_param*)vparam;
 
@@ -9,14 +11,17 @@ void* send_packet(void* vparam) {
       continue;
     }
 
+    struct s_packet* tmp = peek(&(param->queue));
+    write_log("send a packet");
+    if (write(param->socket, tmp->data, tmp->size) < 0) {
+      // while (g_new_socket <= 0)
+        sleep(1);
+      // param->socket = g_new_socket;
+      continue;
+    }
     pthread_mutex_lock(&(param->queue_mutex));
     struct s_packet* pop = dequeue(&(param->queue));
     pthread_mutex_unlock(&(param->queue_mutex));
-    write_log("send a packet");
-    if (write(param->socket, pop->data, pop->size) < 0) {
-      write_log("Error server closed");
-      exit(EXIT_FAILURE);
-    }
     free(pop->data);
     pop->data = NULL;
     free(pop);

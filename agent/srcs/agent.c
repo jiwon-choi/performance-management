@@ -4,7 +4,7 @@ int g_debug_fd;
 char g_agent_name[9];
 
 static
-int connection() {
+int tcp_connect() {
   int sock = 0;
   struct sockaddr_in serv_addr;
   if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -24,31 +24,6 @@ int connection() {
     exit(EXIT_FAILURE);
   }
   return (sock);
-}
-
-void signal_handler(int sig) {
-  if (sig == SIGINT) {
-    write_log("Signal SIGINT");
-  } else if (sig == SIGQUIT) {
-    write_log("Signal SIGQUIT");
-  } else if (sig == SIGILL) {
-    write_log("Signal SIGILL");
-  } else if (sig == SIGABRT) {
-    write_log("Signal SIGABRT");
-  } else if (sig == SIGIOT) {
-    write_log("Signal SIGIOT");
-  } else if (sig == SIGKILL) {
-    write_log("Signal SIGKILL");
-  } else if (sig == SIGBUS) {
-    write_log("Signal SIGBUS");
-  } else if (sig == SIGSEGV) {
-    write_log("Signal SIGSEGV");
-  } else if (sig == SIGTERM) {
-    write_log("Signal SIGTERM");
-  } else {
-    write_log("Signal another");
-  }
-  exit(EXIT_FAILURE);
 }
 
 int main(int argc, char* argv[]) {
@@ -79,28 +54,20 @@ int main(int argc, char* argv[]) {
   sprintf(buf, "Run Agent <%s>", g_agent_name);
   write_log(buf);
 
-  signal(SIGINT, signal_handler);
-  signal(SIGQUIT, signal_handler);
-  signal(SIGILL, signal_handler);
-  signal(SIGABRT, signal_handler);
-  signal(SIGIOT, signal_handler);
-  signal(SIGKILL, signal_handler);
-  signal(SIGBUS, signal_handler);
-  signal(SIGSEGV, signal_handler);
-  signal(SIGTERM, signal_handler);
+  set_signal();
 
   pthread_t tid[5];
-  struct s_thread_param data;
+  struct s_thread_param param;
 
-  data.queue = NULL;
-  data.socket = connection();
-  pthread_mutex_init(&data.queue_mutex, NULL);
+  param.queue = NULL;
+  param.socket = tcp_connect();
+  pthread_mutex_init(&param.queue_mutex, NULL);
 
-  pthread_create(&tid[STAT], NULL, parse_stat, &data);
-  pthread_create(&tid[MEM], NULL, parse_mem, &data);
-  pthread_create(&tid[NET], NULL, parse_net, &data);
-  pthread_create(&tid[PROCESS], NULL, parse_process, &data);
-  pthread_create(&tid[SEND], NULL, send_packet, &data);
+  pthread_create(&tid[STAT], NULL, parse_stat, &param);
+  pthread_create(&tid[MEM], NULL, parse_mem, &param);
+  pthread_create(&tid[NET], NULL, parse_net, &param);
+  pthread_create(&tid[PROCESS], NULL, parse_process, &param);
+  pthread_create(&tid[SEND], NULL, send_packet, &param);
 
   pthread_join(tid[STAT], NULL);
   pthread_join(tid[MEM], NULL);
@@ -108,7 +75,7 @@ int main(int argc, char* argv[]) {
   pthread_join(tid[PROCESS], NULL);
   pthread_join(tid[SEND], NULL);
 
-  pthread_mutex_destroy(&data.queue_mutex);
+  pthread_mutex_destroy(&param.queue_mutex);
 
   return (0);
 }

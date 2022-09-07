@@ -13,6 +13,7 @@
 # include "log.h"
 # include "parse.h"
 # include "send.h"
+# include "sig.h"
 # include "queue.h"
 
 # define PORT 4242

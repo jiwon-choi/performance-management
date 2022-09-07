@@ -21,3 +21,7 @@ struct s_packet* dequeue(struct s_packet** head) {
   *head = pop->next;
   return (pop);
 }
+
+struct s_packet* peek(struct s_packet** head) {
+  return (*head);
+}
