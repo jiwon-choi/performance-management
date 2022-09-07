@@ -19,7 +19,7 @@ void* send_packet(void* vparam) {
       sleep(1);
       continue;
     }
-    write_log("send a packet");
+    write_log("Send a packet");
     pthread_mutex_lock(&(param->queue_mutex));
     struct s_packet* pop = dequeue(&(param->queue));
     pthread_mutex_unlock(&(param->queue_mutex));

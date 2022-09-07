@@ -108,7 +108,7 @@ void* parse_stat(void* vparam) {
   struct s_thread_param* param = vparam;
 
   while (1) {
-    write_log("collect stat");
+    write_log("Collect stat");
 
     FILE* fp;
     size_t strlen = 0;
@@ -160,7 +160,7 @@ void* parse_mem(void* vparam) {
   struct s_thread_param* param = vparam;
 
   while (1) {
-    write_log("collect mem");
+    write_log("Collect mem");
 
     FILE* fp;
     size_t strlen = 0;
@@ -212,7 +212,7 @@ void* parse_net(void* vparam) {
   struct s_thread_param* param = vparam;
 
   while (1) {
-    write_log("collect net");
+    write_log("Collect net");
 
     FILE* fp;
     size_t strlen = 0;
@@ -273,7 +273,7 @@ void* parse_process(void* vparam) {
   struct s_thread_param* param = vparam;
 
   while (1) {
-    write_log("collect process");
+    write_log("Collect process");
 
     DIR* proc;
     struct dirent* ent;

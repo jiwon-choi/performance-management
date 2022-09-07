@@ -5,7 +5,7 @@ extern pthread_mutex_t g_log_mutex;
 
 void listening(int* server_fd, struct sockaddr_in* address) {
   if ((*server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-    write_log("Error socket()");
+    write_log("Socket error");
     exit(EXIT_FAILURE);
   }
 
@@ -15,11 +15,11 @@ void listening(int* server_fd, struct sockaddr_in* address) {
   memset(address->sin_zero, 0, sizeof(address->sin_zero));
 
   if (bind(*server_fd, (struct sockaddr *)address, sizeof(*address)) < 0) {
-    write_log("Error bind()");
+    write_log("Bind error");
     exit(EXIT_FAILURE);
   }
   if (listen(*server_fd, 20) < 0) {
-    write_log("Error listen()");
+    write_log("Listen error");
     exit(EXIT_FAILURE);
   }
 }
@@ -160,7 +160,7 @@ int main(void) {
     char buf[20];
     pthread_create(&tid, NULL, run_worker, &data);
     pthread_detach(tid);
-    sprintf(buf, "Create worker no.%d", i + 1);
+    sprintf(buf, "Create worker%d", i + 1);
     write_log(buf);
   }
 
@@ -169,10 +169,10 @@ int main(void) {
     if ((data.socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addr_size)) < 0) {
       exit(EXIT_FAILURE);
     }
-    // TODO write_log("Accept [AGENT_NAME]");
+    write_log("Accept an agent");
     pthread_create(&tid, NULL, recv_packet, &data);
     pthread_detach(tid);
-    write_log("Create recv");
+    write_log("Create recv thread");
   }
 
   return (0);
