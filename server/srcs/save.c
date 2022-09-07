@@ -13,8 +13,8 @@ void save_stat(struct s_packet* packet) {
   struct s_header* header = packet->data;
   struct s_stat* body = packet->data + sizeof(struct s_header);
 
-  fprintf(fp, "%s | %-10s | ", header->time, header->agent_name);
-  fprintf(fp, "user %d | sys %d | idle %d | iowait %d",
+  fprintf(fp, "%s | %-8s | ", header->time, header->agent_name);
+  fprintf(fp, "user %-10d | sys %-10d | idle %-10d | iowait %-10d",
           body->user, body->sys, body->idle, body->iowait);
   fprintf(fp, "\n");
   fclose(fp);
@@ -30,8 +30,8 @@ void save_mem(struct s_packet* packet) {
   struct s_header* header = packet->data;
   struct s_mem* body = packet->data + sizeof(struct s_header);
 
-  fprintf(fp, "%s | %-10s | ", header->time, header->agent_name);
-  fprintf(fp, "memtotal %d | memfree %d | swaptotal %d | swapfree %d",
+  fprintf(fp, "%s | %-8s | ", header->time, header->agent_name);
+  fprintf(fp, "memtotal %-10d | memfree %-10d | swaptotal %-10d | swapfree %-10d",
           body->mem_total, body->mem_free, body->swap_total, body->swap_free);
   fprintf(fp, "\n");
   fclose(fp);
@@ -48,8 +48,8 @@ void save_net(struct s_packet* packet) {
 
   for (int idx = 0; idx < header->number_of_body; idx++) {
     struct s_net* chunk = packet->data + sizeof(struct s_header) + sizeof(struct s_net) * idx;
-    fprintf(fp, "%s | %-10s | ", header->time, header->agent_name);
-    fprintf(fp, "interface %s | Rbytes %d | Rpackets %d | Tbytes %d | Tpackets %d",
+    fprintf(fp, "%s | %-8s | ", header->time, header->agent_name);
+    fprintf(fp, "interface %-15s | Rbytes %-10d | Rpackets %-10d | Tbytes %-10d | Tpackets %-10d",
             chunk->interface, chunk->receive_bytes, chunk->receive_packets, chunk->transmit_bytes, chunk->transmit_packets);
     fprintf(fp, "\n");
   }
@@ -66,12 +66,10 @@ void save_process(struct s_packet* packet) {
 
   for (int idx = 0; idx < header->number_of_body; idx++) {
     struct s_process* chunk = packet->data + sizeof(struct s_header) + sizeof(struct s_process) * idx;
-    fprintf(fp, "%s | %-10s | ", header->time, header->agent_name);
-    fprintf(fp, "pid %u | ppid %u | loginuid %u | comm %s | username %s | ",
-            chunk->pid, chunk->ppid, chunk->loginuid, chunk->comm, chunk->username);
-    fprintf(fp, "cutime %ld | cstime %ld | utime %lu | stime %lu | ",
-            chunk->cutime, chunk->cstime, chunk->utime, chunk->stime);
-    fprintf(fp, "cmdline : %s", chunk->cmdline);
+    fprintf(fp, "%s | %-8s | ", header->time, header->agent_name);
+    fprintf(fp, "pid %-6u | ppid %-6u | loginuid %-6u | ", chunk->pid, chunk->ppid, chunk->loginuid);
+    // fprintf(fp, "cutime %10ld | cstime %10ld | utime %10lu | stime %10lu\n", chunk->cutime, chunk->cstime, chunk->utime, chunk->stime);
+    fprintf(fp, "username %-8s | comm %-10s | cmdline : %s", chunk->username, chunk->comm, chunk->cmdline);
     fprintf(fp, "\n");
   }
   fclose(fp);
