@@ -1,5 +1,7 @@
 #include "connect.h"
 
+int g_socket;
+
 void tcp_reconnect() {
   write_log("Attempt to reconnection");
   close(g_socket);

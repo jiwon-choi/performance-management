@@ -2,6 +2,7 @@
 
 int g_debug_fd;
 char g_agent_name[9];
+pthread_mutex_t g_log_mutex;
 
 int main(int argc, char* argv[]) {
   if (argc != 2)

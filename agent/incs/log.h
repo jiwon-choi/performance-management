@@ -7,8 +7,6 @@
 # include <time.h>
 # include <unistd.h>
 
-pthread_mutex_t g_log_mutex;
-
 void write_log(char* msg);
 
 #endif

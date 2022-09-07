@@ -1,5 +1,7 @@
 #include "send.h"
 
+extern int g_socket;
+
 void* send_packet(void* vparam) {
   struct s_thread_param* param = (struct s_thread_param*)vparam;
 

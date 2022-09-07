@@ -11,8 +11,6 @@
 
 # define PORT 4242
 
-int g_socket;
-
 void tcp_reconnect();
 int tcp_connect();
 

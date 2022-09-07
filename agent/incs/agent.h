@@ -11,6 +11,4 @@
 # include "sig.h"
 # include "queue.h"
 
-extern pthread_mutex_t g_log_mutex;
-
 #endif

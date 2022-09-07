@@ -1,6 +1,7 @@
 #include "server.h"
 
 int g_debug_fd;
+extern pthread_mutex_t g_log_mutex;
 
 void listening(int* server_fd, struct sockaddr_in* address) {
   if ((*server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
