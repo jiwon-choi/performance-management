@@ -2,15 +2,13 @@
 
 void write_log(char* msg) {
   time_t tm;
-  char* stm;
+  char str_time[25];
 
   time(&tm);
-  stm = ctime(&tm);
+  strlcpy(str_time, ctime(&tm), 25);
   pthread_mutex_lock(&g_log_mutex);
-  write(g_log_fd, "[", 1);
-  write(g_log_fd, stm, strlen(stm) - 1);
-  write(g_log_fd, "] ", 2);
-  write(g_log_fd, msg, strlen(msg));
-  write(g_log_fd, "\n", 1);
+  FILE* fp = fopen("files/log", "a+");
+  fprintf(fp, "[%s] %s\n", str_time, msg);
+  fclose(fp);
   pthread_mutex_unlock(&g_log_mutex);
 }

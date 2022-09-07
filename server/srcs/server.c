@@ -1,8 +1,6 @@
 #include "server.h"
 
-int g_stdoutFd;
-int g_log_fd;
-pthread_mutex_t g_log_mutex;
+int g_debug_fd;
 
 void listening(int* server_fd, struct sockaddr_in* address) {
   if ((*server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
@@ -52,7 +50,7 @@ void* recv_packet(void* vparam) {
       rd_size -= packet->size;
       pbuf += packet->size;
       pthread_mutex_lock(&(param->queue_mutex));
-      insert_queue(&param->queue, packet);
+      enqueue(&param->queue, packet);
       pthread_mutex_unlock(&(param->queue_mutex));
     }
   }
@@ -70,7 +68,7 @@ void* run_worker(void* vparam) {
       continue;
     }
     pthread_mutex_lock(&(param->queue_mutex));
-    struct s_packet* pop = pop_queue(&(param->queue));
+    struct s_packet* pop = dequeue(&(param->queue));
     pthread_mutex_unlock(&(param->queue_mutex));
     if (!pop) continue;
     struct s_header* header = pop->data;
@@ -127,14 +125,13 @@ int main(void) {
 
   signal(SIGHUP, SIG_IGN);
   close(STDIN_FILENO);
-  g_stdoutFd = dup(STDOUT_FILENO);
+  g_debug_fd = dup(STDOUT_FILENO);
   close(STDOUT_FILENO);
   close(STDERR_FILENO);
   // chdir("/");
   setsid();
 
   mkdir("files", 0777);
-  g_log_fd = open("files/log", O_APPEND | O_CREAT | O_WRONLY, 0777);
   pthread_mutex_init(&g_log_mutex, NULL);
   write_log("Run server");
 
