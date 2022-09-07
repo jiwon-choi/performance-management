@@ -124,8 +124,10 @@ void* parse_stat(void* vparam) {
     packet->next = NULL;
 
     struct s_header* header = packet->data;
-    strlcpy(header->agent_name, g_agent_name, 9);
-    strlcpy(header->time, ctime(&raw_time), 25);
+    strncpy(header->agent_name, g_agent_name, 9);
+    header->agent_name[8] = 0;
+    strncpy(header->time, ctime(&raw_time), 25);
+    header->time[24] = 0;
     header->type_of_body = STAT;
     header->number_of_body = 1;
 
@@ -174,8 +176,10 @@ void* parse_mem(void* vparam) {
     packet->next = NULL;
 
     struct s_header* header = packet->data;
-    strlcpy(header->agent_name, g_agent_name, 9);
-    strlcpy(header->time, ctime(&raw_time), 25);
+    strncpy(header->agent_name, g_agent_name, 9);
+    header->agent_name[8] = 0;
+    strncpy(header->time, ctime(&raw_time), 25);
+    header->time[24] = 0;
     header->type_of_body = MEM;
     header->number_of_body = 1;
 
@@ -225,8 +229,10 @@ void* parse_net(void* vparam) {
     packet->next = NULL;
 
     struct s_header* header = packet->data;
-    strlcpy(header->agent_name, g_agent_name, 9);
-    strlcpy(header->time, ctime(&raw_time), 25);
+    strncpy(header->agent_name, g_agent_name, 9);
+    header->agent_name[8] = 0;
+    strncpy(header->time, ctime(&raw_time), 25);
+    header->time[24] = 0;
     header->type_of_body = NET;
     header->number_of_body = net_size;
 
@@ -281,8 +287,10 @@ void* parse_process(void* vparam) {
     packet->next = NULL;
 
     struct s_header* header = packet->data;
-    strlcpy(header->agent_name, g_agent_name, 9);
-    strlcpy(header->time, ctime(&raw_time), 25);
+    strncpy(header->agent_name, g_agent_name, 9);
+    header->agent_name[8] = 0;
+    strncpy(header->time, ctime(&raw_time), 25);
+    header->time[24] = 0;
     header->type_of_body = PROCESS;
     header->number_of_body = process_size;
 

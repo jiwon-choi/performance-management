@@ -26,7 +26,8 @@ int main(int argc, char* argv[]) {
 
   mkdir("files", 0777);
   pthread_mutex_init(&g_log_mutex, NULL);
-  strlcpy(g_agent_name, argv[1], 9);
+  strncpy(g_agent_name, argv[1], 9);
+  g_agent_name[8] = 0;
   char buf[32];
   sprintf(buf, "Run Agent <%s>", g_agent_name);
   write_log(buf);
