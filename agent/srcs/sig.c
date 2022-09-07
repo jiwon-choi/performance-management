@@ -4,7 +4,7 @@ void signal_handler(int sig) {
   switch (sig) {
   case SIGPIPE:
     write_log("Signal SIGPIPE");
-    // reconnect();
+    tcp_reconnect();
     return;
   case SIGINT:
     write_log("Signal SIGINT");

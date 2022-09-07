@@ -4,6 +4,7 @@
 # include <signal.h>
 # include <stdlib.h>
 
+# include "connect.h"
 # include "log.h"
 
 void signal_handler(int sig);

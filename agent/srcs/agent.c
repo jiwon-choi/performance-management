@@ -3,32 +3,9 @@
 int g_debug_fd;
 char g_agent_name[9];
 
-static
-int tcp_connect() {
-  int sock = 0;
-  struct sockaddr_in serv_addr;
-  if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    exit(EXIT_FAILURE);
-  }
-
-  memset(&serv_addr, '\0', sizeof(serv_addr));
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port = htons(PORT);
-  if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
-    write_log("Invalid address/ Address not supported");
-    exit(EXIT_FAILURE);
-  }
-
-  if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-    write_log("Connection Failed");
-    exit(EXIT_FAILURE);
-  }
-  return (sock);
-}
-
 int main(int argc, char* argv[]) {
   if (argc != 2)
-    write(STDERR_FILENO, "Error argc\n", 11);
+    write(STDERR_FILENO, "Please enter a agent name\n", 26);
 
   pid_t pid = fork();
 
@@ -60,7 +37,7 @@ int main(int argc, char* argv[]) {
   struct s_thread_param param;
 
   param.queue = NULL;
-  param.socket = tcp_connect();
+  g_socket = tcp_connect();
   pthread_mutex_init(&param.queue_mutex, NULL);
 
   pthread_create(&tid[STAT], NULL, parse_stat, &param);

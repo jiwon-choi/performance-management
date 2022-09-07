@@ -8,6 +8,8 @@
 # include "struct.h"
 # include "queue.h"
 
+extern int g_socket;
+
 void* send_packet(void* vparam);
 
 #endif
