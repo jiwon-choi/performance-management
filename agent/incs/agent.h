@@ -6,7 +6,6 @@
 # include <stdlib.h>
 # include <sys/stat.h>
 
-# include "connect.h"
 # include "parse.h"
 # include "send.h"
 # include "sig.h"

@@ -4,6 +4,7 @@
 # include <stdlib.h>
 # include <unistd.h>
 
+# include "connect.h"
 # include "log.h"
 # include "struct.h"
 # include "queue.h"

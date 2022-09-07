@@ -13,7 +13,7 @@
 
 int g_socket;
 
-int tcp_reconnect();
+void tcp_reconnect();
 int tcp_connect();
 
 #endif

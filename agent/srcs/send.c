@@ -3,6 +3,9 @@
 void* send_packet(void* vparam) {
   struct s_thread_param* param = (struct s_thread_param*)vparam;
 
+  g_socket = tcp_connect();
+  signal(SIGPIPE, tcp_reconnect);
+
   while (1) {
     if (!param->queue) {
       sleep(1);

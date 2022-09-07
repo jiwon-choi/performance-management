@@ -2,10 +2,6 @@
 
 void signal_handler(int sig) {
   switch (sig) {
-  case SIGPIPE:
-    write_log("Signal SIGPIPE");
-    tcp_reconnect();
-    return;
   case SIGINT:
     write_log("Signal SIGINT");
     break;
@@ -42,5 +38,4 @@ void set_signal() {
   signal(SIGBUS, signal_handler);
   signal(SIGSEGV, signal_handler);
   signal(SIGTERM, signal_handler);
-  signal(SIGPIPE, signal_handler);
 }

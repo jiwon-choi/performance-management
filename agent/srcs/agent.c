@@ -37,7 +37,6 @@ int main(int argc, char* argv[]) {
   struct s_thread_param param;
 
   param.queue = NULL;
-  g_socket = tcp_connect();
   pthread_mutex_init(&param.queue_mutex, NULL);
 
   pthread_create(&tid[STAT], NULL, parse_stat, &param);

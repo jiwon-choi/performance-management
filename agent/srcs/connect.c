@@ -1,14 +1,10 @@
 #include "connect.h"
 
-int tcp_reconnect() {
+void tcp_reconnect() {
   write_log("Attempt to reconnection");
-  int new = tcp_connect();
-  int tmp = new;
-  new = g_socket;
-  g_socket = tmp;
-  close(new);
+  close(g_socket);
+  g_socket = tcp_connect();
   write_log("Succeeded to reconnection");
-  return (0);
 }
 
 int tcp_connect() {
@@ -25,12 +21,14 @@ int tcp_connect() {
     serv_addr.sin_port = htons(PORT);
     if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
       write_log("Invalid address/ Address not supported");
+      close(new_socket);
       sleep(1);
       continue;
     }
 
     if (connect(new_socket, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
       write_log("Failed to reconnection");
+      close(new_socket);
       sleep(1);
       continue;
     }
