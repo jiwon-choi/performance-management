@@ -13,8 +13,6 @@
 # include "struct.h"
 # include "queue.h"
 
-extern char g_agent_name[9];
-
 void* parse_stat(void* vparam);
 void* parse_mem(void* vparam);
 void* parse_net(void* vparam);

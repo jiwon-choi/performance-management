@@ -11,7 +11,8 @@ OBJS_DIR		= ./objs/
 SRC			= log.c \
 					queue.c \
 					save.c \
-					server.c
+					server.c \
+					sig.c
 
 SRCS		= $(addprefix $(SRCS_DIR), $(SRC))
 OBJS		= $(addprefix $(OBJS_DIR), $(SRC:.c=.o))

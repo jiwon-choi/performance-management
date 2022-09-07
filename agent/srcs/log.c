@@ -1,6 +1,6 @@
 #include "log.h"
 
-extern pthread_mutex_t g_log_mutex;
+pthread_mutex_t g_log_mutex;
 
 void write_log(char* msg) {
   time_t tm;

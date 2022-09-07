@@ -89,31 +89,6 @@ void* run_worker(void* vparam) {
   return (0);
 }
 
-void signal_handler(int sig) {
-  if (sig == SIGINT) {
-    write_log("Signal SIGINT");
-  } else if (sig == SIGQUIT) {
-    write_log("Signal SIGQUIT");
-  } else if (sig == SIGILL) {
-    write_log("Signal SIGILL");
-  } else if (sig == SIGABRT) {
-    write_log("Signal SIGABRT");
-  } else if (sig == SIGIOT) {
-    write_log("Signal SIGIOT");
-  } else if (sig == SIGKILL) {
-    write_log("Signal SIGKILL");
-  } else if (sig == SIGBUS) {
-    write_log("Signal SIGBUS");
-  } else if (sig == SIGSEGV) {
-    write_log("Signal SIGSEGV");
-  } else if (sig == SIGTERM) {
-    write_log("Signal SIGTERM");
-  } else {
-    write_log("Signal another");
-  }
-  exit(EXIT_FAILURE);
-}
-
 int main(void) {
   pid_t pid = fork();
 
@@ -136,15 +111,7 @@ int main(void) {
   pthread_mutex_init(&g_log_mutex, NULL);
   write_log("Run server");
 
-  signal(SIGINT, signal_handler);
-  signal(SIGQUIT, signal_handler);
-  signal(SIGILL, signal_handler);
-  signal(SIGABRT, signal_handler);
-  signal(SIGIOT, signal_handler);
-  signal(SIGKILL, signal_handler);
-  signal(SIGBUS, signal_handler);
-  signal(SIGSEGV, signal_handler);
-  signal(SIGTERM, signal_handler);
+  set_signal();
 
   int server_fd;
   struct sockaddr_in address;

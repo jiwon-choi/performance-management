@@ -1,5 +1,7 @@
 #include "parse.h"
 
+extern char g_agent_name[9];
+
 static
 int get_net_size() {
   FILE* fp;

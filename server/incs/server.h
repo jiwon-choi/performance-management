@@ -13,9 +13,10 @@
 # include <signal.h>
 # include <fcntl.h>
 
+# include "log.h"
 # include "queue.h"
 # include "save.h"
-# include "log.h"
+# include "sig.h"
 
 # define PORT 4242
 
