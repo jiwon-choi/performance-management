@@ -22,7 +22,6 @@ int main(int argc, char* argv[]) {
   g_debug_fd = dup(STDOUT_FILENO);
   close(STDOUT_FILENO);
   close(STDERR_FILENO);
-  // chdir("/");
   setsid();
 
   mkdir("files", 0777);
@@ -36,16 +35,16 @@ int main(int argc, char* argv[]) {
   set_signal();
 
   pthread_t tid[5];
-  struct s_thread_param param;
+  struct s_queue_wrapper qwrapper;
 
-  param.queue = NULL;
-  pthread_mutex_init(&param.queue_mutex, NULL);
+  qwrapper.queue = NULL;
+  pthread_mutex_init(&qwrapper.queue_mutex, NULL);
 
-  pthread_create(&tid[STAT], NULL, parse_stat, &param);
-  pthread_create(&tid[MEM], NULL, parse_mem, &param);
-  pthread_create(&tid[NET], NULL, parse_net, &param);
-  pthread_create(&tid[PROCESS], NULL, parse_process, &param);
-  pthread_create(&tid[SEND], NULL, send_packet, &param);
+  pthread_create(&tid[STAT], NULL, parse_stat, &qwrapper);
+  pthread_create(&tid[MEM], NULL, parse_mem, &qwrapper);
+  pthread_create(&tid[NET], NULL, parse_net, &qwrapper);
+  pthread_create(&tid[PROCESS], NULL, parse_process, &qwrapper);
+  pthread_create(&tid[SEND], NULL, send_packet, &qwrapper);
 
   pthread_join(tid[STAT], NULL);
   pthread_join(tid[MEM], NULL);
@@ -53,7 +52,7 @@ int main(int argc, char* argv[]) {
   pthread_join(tid[PROCESS], NULL);
   pthread_join(tid[SEND], NULL);
 
-  pthread_mutex_destroy(&param.queue_mutex);
+  pthread_mutex_destroy(&qwrapper.queue_mutex);
 
   return (0);
 }

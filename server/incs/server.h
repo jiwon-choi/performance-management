@@ -17,6 +17,7 @@
 # include "queue.h"
 # include "save.h"
 # include "sig.h"
+# include "struct.h"
 
 # define PORT 4242
 

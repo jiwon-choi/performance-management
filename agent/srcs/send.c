@@ -3,7 +3,7 @@
 extern int g_socket;
 
 void* send_packet(void* vparam) {
-  struct s_thread_param* param = (struct s_thread_param*)vparam;
+  struct s_queue_wrapper* param = (struct s_queue_wrapper*)vparam;
 
   g_socket = tcp_connect();
   signal(SIGPIPE, tcp_reconnect);

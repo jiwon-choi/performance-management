@@ -10,5 +10,6 @@
 # include "send.h"
 # include "sig.h"
 # include "queue.h"
+# include "struct.h"
 
 #endif

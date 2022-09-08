@@ -25,7 +25,7 @@ void listening(int* server_fd, struct sockaddr_in* address) {
 }
 
 void* recv_packet(void* vparam) {
-  struct s_thread_param* param = (struct s_thread_param*)vparam;
+  struct s_recv_param* param = (struct s_recv_param*)vparam;
   int rd_size;
   char buf[100000] = { 0, };
 
@@ -50,9 +50,12 @@ void* recv_packet(void* vparam) {
       packet->next = NULL;
       rd_size -= packet->size;
       pbuf += packet->size;
-      pthread_mutex_lock(&(param->queue_mutex));
-      enqueue(&param->queue, packet);
-      pthread_mutex_unlock(&(param->queue_mutex));
+      pthread_mutex_lock(&(param->qwrapper->queue_mutex));
+      enqueue(&param->qwrapper->queue, packet);
+      pthread_mutex_unlock(&(param->qwrapper->queue_mutex));
+      char buf[32];
+      sprintf(buf, "Receive %s's data", header->agent_name);
+      write_log(buf);
     }
   }
   if (rd_size < 0)
@@ -61,7 +64,7 @@ void* recv_packet(void* vparam) {
 }
 
 void* run_worker(void* vparam) {
-  struct s_thread_param* param = (struct s_thread_param*)vparam;
+  struct s_queue_wrapper* param = (struct s_queue_wrapper*)vparam;
 
   while (1) {
     if (!param->queue) {
@@ -116,28 +119,31 @@ int main(void) {
   int server_fd;
   struct sockaddr_in address;
   listening(&server_fd, &address);
-
   int addr_size = sizeof(address);
-  struct s_thread_param data;
-  data.queue = NULL;
-  pthread_mutex_init(&data.queue_mutex, NULL);
+
+  struct s_queue_wrapper wrapper;
+  wrapper.queue = NULL;
+  pthread_mutex_init(&wrapper.queue_mutex, NULL);
 
   pthread_t tid;
   for (int i = 0; i < 8; i++) {
     char buf[20];
-    pthread_create(&tid, NULL, run_worker, &data);
+    pthread_create(&tid, NULL, run_worker, &wrapper);
     pthread_detach(tid);
     sprintf(buf, "Create worker%d", i + 1);
     write_log(buf);
   }
 
   write_log("Start listen");
+  struct s_recv_param* data;
   while (1) {
-    if ((data.socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addr_size)) < 0) {
+    data = malloc(sizeof(struct s_recv_param));
+    data->qwrapper = &wrapper;
+    if ((data->socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addr_size)) < 0) {
       exit(EXIT_FAILURE);
     }
     write_log("Accept an agent");
-    pthread_create(&tid, NULL, recv_packet, &data);
+    pthread_create(&tid, NULL, recv_packet, data);
     pthread_detach(tid);
     write_log("Create recv thread");
   }

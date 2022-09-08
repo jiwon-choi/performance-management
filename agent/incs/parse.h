@@ -10,8 +10,8 @@
 # include <unistd.h>
 
 # include "log.h"
-# include "struct.h"
 # include "queue.h"
+# include "struct.h"
 
 void* parse_stat(void* vparam);
 void* parse_mem(void* vparam);

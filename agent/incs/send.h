@@ -7,8 +7,8 @@
 
 # include "connect.h"
 # include "log.h"
-# include "struct.h"
 # include "queue.h"
+# include "struct.h"
 
 void* send_packet(void* vparam);
 

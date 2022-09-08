@@ -107,7 +107,7 @@ void parse_process_stat(struct s_process* process, char* filename) {
 }
 
 void* parse_stat(void* vparam) {
-  struct s_thread_param* param = vparam;
+  struct s_queue_wrapper* param = vparam;
 
   while (1) {
     write_log("Collect stat");
@@ -159,7 +159,7 @@ void* parse_stat(void* vparam) {
 }
 
 void* parse_mem(void* vparam) {
-  struct s_thread_param* param = vparam;
+  struct s_queue_wrapper* param = vparam;
 
   while (1) {
     write_log("Collect mem");
@@ -211,7 +211,7 @@ void* parse_mem(void* vparam) {
 }
 
 void* parse_net(void* vparam) {
-  struct s_thread_param* param = vparam;
+  struct s_queue_wrapper* param = vparam;
 
   while (1) {
     write_log("Collect net");
@@ -272,7 +272,7 @@ void* parse_net(void* vparam) {
 }
 
 void* parse_process(void* vparam) {
-  struct s_thread_param* param = vparam;
+  struct s_queue_wrapper* param = vparam;
 
   while (1) {
     write_log("Collect process");
