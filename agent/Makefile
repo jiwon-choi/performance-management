@@ -1,6 +1,6 @@
 TARGET			= agent
 
-CC					= gcc -fsanitize=address
+CC					= gcc
 CFLAGS			= -Wall -Werror -Wextra
 RM					= rm -rf
 
