@@ -6,12 +6,12 @@ extern pthread_mutex_t g_log_mutex;
 
 int main(int argc, char* argv[]) {
   if (argc != 2)
-    write(STDERR_FILENO, "Please enter a agent name\n", 26);
+    printf("Please enter a agent name\n");
 
   pid_t pid = fork();
 
   if (pid < 0) {
-    write(STDERR_FILENO, "Error fork()\n", 13);
+    printf("Error fork()\n");
     exit(EXIT_FAILURE);
   } else if (pid > 0) {
     exit(EXIT_SUCCESS);

@@ -1,8 +1,6 @@
 #ifndef PACKET_H_
 # define PACKET_H_
 
-# include <time.h>
-
 # define STAT_LOCATION "/proc/stat"
 # define MEM_LOCATION "/proc/meminfo"
 # define NET_LOCATION "/proc/net/dev"
