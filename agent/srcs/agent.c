@@ -5,8 +5,10 @@ char g_agent_name[9];
 extern pthread_mutex_t g_log_mutex;
 
 int main(int argc, char* argv[]) {
-  if (argc != 2)
+  if (argc != 2) {
     printf("Please enter a agent name\n");
+    exit(EXIT_FAILURE);
+  }
 
   pid_t pid = fork();
 
