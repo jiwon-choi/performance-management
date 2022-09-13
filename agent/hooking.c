@@ -4,17 +4,20 @@
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include "incs/packet.h"
 
+int sock;
+struct sockaddr_in  serv_addr;
+struct s_udp_begin  begin;
+struct s_udp_end    end;
+
 ssize_t (*origin_write)(int fd, const void* buf, size_t count);
 
-__attribute__((constructor)) before_main() {
-  int sock;
-  struct sockaddr_in serv_addr;
-
+void __attribute__((constructor)) before_main() {
   if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
     printf("UDP socket error");
     exit(EXIT_FAILURE);
@@ -28,18 +31,18 @@ __attribute__((constructor)) before_main() {
 
 ssize_t write(int fd, const void* buf, size_t count) {
   static int num = 0;
-  struct s_udp_begin  begin;
-  struct s_udp_end    end;
   struct sockaddr_in  peer;
+  socklen_t size = sizeof(peer);
 
   memset(&peer, 0, sizeof(peer));
   getpeername(fd, (struct sockaddr*)&peer, &size);
   // begin.agent_name;
   begin.pid = getpid();
-  strcpy(begin.peer_ip, addr.sin_addr);
-  begin.port = addr.sin_port;
+  strcpy(begin.peer_ip, inet_ntoa(peer.sin_addr));
+  begin.port = peer.sin_port;
   begin.pkt_no = num++;
 
+  sendto(sock, &begin, sizeof(struct s_udp_begin), 0, (struct sockaddr*)(&serv_addr), sizeof(serv_addr));
   origin_write = (ssize_t (*)(int, const void*, size_t))dlsym(RTLD_NEXT, "write");
   time(&(begin.begin_time));
   ssize_t send_byte = (*origin_write)(fd, buf, count);
@@ -49,8 +52,9 @@ ssize_t write(int fd, const void* buf, size_t count) {
   end.pid = begin.pid;
   end.send_byte = send_byte;
   end.elapse_time = end_time - begin.begin_time;
+  sendto(sock, &end, sizeof(struct s_udp_begin), 0, (struct sockaddr*)(&serv_addr), sizeof(serv_addr));
 
-  return (rtn);
+  return (send_byte);
 }
 
 // gcc -fPIC -shared -o hook.so hooking.c -ldl
