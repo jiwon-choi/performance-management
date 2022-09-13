@@ -159,7 +159,7 @@ int main(void) {
 
   pthread_t tid;
   for (int i = 0; i < 8; i++) {
-    char buf[20];
+    char buf[40];
     pthread_create(&tid, NULL, run_worker, &wrapper);
     pthread_detach(tid);
     sprintf(buf, "Create worker thread %d", i + 1);
