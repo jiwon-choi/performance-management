@@ -1,20 +1,19 @@
 #include "server.h"
 
-int g_debug_fd;
 extern pthread_mutex_t g_log_mutex;
 
 void tcp_connection(int* server_fd, struct sockaddr_in* address) {
-  if ((*server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+  if ((*server_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
     write_log("TCP socket error");
     exit(EXIT_FAILURE);
   }
 
+  memset(address, 0, sizeof(*address));
   address->sin_family = AF_INET;
   address->sin_addr.s_addr = INADDR_ANY;
   address->sin_port = htons(PORT);
-  memset(address->sin_zero, 0, sizeof(address->sin_zero));
 
-  if (bind(*server_fd, (struct sockaddr *)address, sizeof(*address)) < 0) {
+  if (bind(*server_fd, (struct sockaddr *)address, sizeof(*address)) == -1) {
     write_log("TCP bind error");
     exit(EXIT_FAILURE);
   }
@@ -98,8 +97,7 @@ void* recv_packet(void* vparam) {
       write_log(buf);
     }
   }
-  if (rd_size < 0)
-    exit(EXIT_FAILURE);
+  free(vparam);
   return (0);
 }
 
@@ -144,8 +142,7 @@ int main(void) {
 
   signal(SIGHUP, SIG_IGN);
   close(STDIN_FILENO);
-  g_debug_fd = dup(STDOUT_FILENO);
-  // close(STDOUT_FILENO);
+  close(STDOUT_FILENO);
   close(STDERR_FILENO);
   setsid();
 
