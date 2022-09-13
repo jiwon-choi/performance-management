@@ -36,7 +36,7 @@ ssize_t write(int fd, const void* buf, size_t count) {
 
   memset(&peer, 0, sizeof(peer));
   getpeername(fd, (struct sockaddr*)&peer, &size);
-  // begin.agent_name;
+  strcpy(begin.agent_name, ((struct s_header*)buf)->agent_name);
   begin.pid = getpid();
   strcpy(begin.peer_ip, inet_ntoa(peer.sin_addr));
   begin.port = peer.sin_port;
@@ -48,7 +48,7 @@ ssize_t write(int fd, const void* buf, size_t count) {
   ssize_t send_byte = (*origin_write)(fd, buf, count);
   time_t end_time;
   time(&end_time);
-  // strcpy(end.agent_name, begin.agent_name);
+  strcpy(end.agent_name, begin.agent_name);
   end.pid = begin.pid;
   end.send_byte = send_byte;
   end.elapse_time = end_time - begin.begin_time;

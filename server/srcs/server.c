@@ -24,7 +24,7 @@ void tcp_connection(int* server_fd, struct sockaddr_in* address) {
   }
 }
 
-void udp_connection() {
+void* udp_connection() {
   int server_fd;
 
   struct sockaddr_in server_addr, client_addr;
@@ -54,6 +54,7 @@ void udp_connection() {
   }
 
   close(server_fd);
+  return (0);
 }
 
 void* recv_packet(void* vparam) {
@@ -139,7 +140,6 @@ int main(void) {
   g_debug_fd = dup(STDOUT_FILENO);
   close(STDOUT_FILENO);
   close(STDERR_FILENO);
-  // chdir("/");
   setsid();
 
   mkdir("files", 0777);
@@ -162,11 +162,15 @@ int main(void) {
     char buf[20];
     pthread_create(&tid, NULL, run_worker, &wrapper);
     pthread_detach(tid);
-    sprintf(buf, "Create worker%d", i + 1);
+    sprintf(buf, "Create worker thread %d", i + 1);
     write_log(buf);
   }
 
-  write_log("Start listen");
+  pthread_create(&tid, NULL, udp_connection, NULL);
+  pthread_detach(tid);
+  write_log("Create UDP thread");
+
+  write_log("Start TCP listen");
   struct s_recv_param* data;
   while (1) {
     data = malloc(sizeof(struct s_recv_param));
