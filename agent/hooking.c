@@ -1,81 +1,55 @@
 #define _GNU_SOURCE
+
+#include <arpa/inet.h>
 #include <dlfcn.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
-# define MAX 10000
-# define CMDLINE_MAX 512
-
-# define SEND 0
-
-enum type {
-  STAT = 1,
-  MEM,
-  NET,
-  PROCESS,
-};
-
-# pragma pack(push, 1)
-  struct s_stat {
-    int   user;
-    int   sys;
-    int   idle;
-    int   iowait;
-  };
-
-  struct s_mem {
-    int   mem_total;
-    int   mem_free;
-    int   swap_total;
-    int   swap_free;
-  };
-
-  struct s_net {
-    char  interface[16];
-    int   receive_bytes;
-    int   receive_packets;
-    int   transmit_bytes;
-    int   transmit_packets;
-  };
-
-  struct s_process {
-    unsigned int    pid;
-    unsigned int    ppid;
-    unsigned int    loginuid;
-    long            cutime;
-    long            cstime;
-    unsigned long   utime;
-    unsigned long   stime;
-    char            comm[256];
-    char            username[8];
-    char            cmdline[CMDLINE_MAX];
-  };
-
-  struct s_header {
-    char    agent_name[9];
-    char    time[25];
-    int     type_of_body;
-    int     number_of_body;
-  };
-# pragma pack(pop)
-
-struct s_packet {
-  int     size;
-  void*   data;
-  struct s_packet* next;
-};
-
-
-
-
-
+#include "incs/packet.h"
 
 ssize_t (*origin_write)(int fd, const void* buf, size_t count);
 
+__attribute__((constructor)) before_main() {
+  int sock;
+  struct sockaddr_in serv_addr;
+
+  if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
+    printf("UDP socket error");
+    exit(EXIT_FAILURE);
+  }
+
+  memset(&serv_addr, 0, sizeof(serv_addr));
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  serv_addr.sin_port = htons(2424);
+}
+
 ssize_t write(int fd, const void* buf, size_t count) {
-  // printf("Hooked!\n");
+  static int num = 0;
+  struct s_udp_begin  begin;
+  struct s_udp_end    end;
+  struct sockaddr_in  peer;
+
+  memset(&peer, 0, sizeof(peer));
+  getpeername(fd, (struct sockaddr*)&peer, &size);
+  // begin.agent_name;
+  begin.pid = getpid();
+  strcpy(begin.peer_ip, addr.sin_addr);
+  begin.port = addr.sin_port;
+  begin.pkt_no = num++;
+
   origin_write = (ssize_t (*)(int, const void*, size_t))dlsym(RTLD_NEXT, "write");
-  ssize_t rtn = (*origin_write)(fd, buf, count);
+  time(&(begin.begin_time));
+  ssize_t send_byte = (*origin_write)(fd, buf, count);
+  time_t end_time;
+  time(&end_time);
+  // strcpy(end.agent_name, begin.agent_name);
+  end.pid = begin.pid;
+  end.send_byte = send_byte;
+  end.elapse_time = end_time - begin.begin_time;
+
   return (rtn);
 }
 

@@ -1,6 +1,8 @@
 #ifndef PACKET_H_
 # define PACKET_H_
 
+# include <time.h>
+
 # define STAT_LOCATION "/proc/stat"
 # define MEM_LOCATION "/proc/meminfo"
 # define NET_LOCATION "/proc/net/dev"
@@ -59,6 +61,22 @@ enum type {
     char    time[25];
     int     type_of_body;
     int     number_of_body;
+  };
+
+  struct s_udp_begin {
+    char          agent_name[9];
+    unsigned int  pid;
+    char          peer_ip[15];
+    int           port;
+    time_t        begin_time;
+    int           pkt_no;
+  };
+
+  struct s_udp_end {
+    char          agent_name[9];
+    unsigned int  pid;
+    int           send_byte;
+    time_t        elapse_time;
   };
 # pragma pack(pop)
 

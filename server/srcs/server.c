@@ -3,9 +3,9 @@
 int g_debug_fd;
 extern pthread_mutex_t g_log_mutex;
 
-void listening(int* server_fd, struct sockaddr_in* address) {
+void tcp_connection(int* server_fd, struct sockaddr_in* address) {
   if ((*server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-    write_log("Socket error");
+    write_log("TCP socket error");
     exit(EXIT_FAILURE);
   }
 
@@ -15,13 +15,45 @@ void listening(int* server_fd, struct sockaddr_in* address) {
   memset(address->sin_zero, 0, sizeof(address->sin_zero));
 
   if (bind(*server_fd, (struct sockaddr *)address, sizeof(*address)) < 0) {
-    write_log("Bind error");
+    write_log("TCP bind error");
     exit(EXIT_FAILURE);
   }
   if (listen(*server_fd, 20) < 0) {
-    write_log("Listen error");
+    write_log("TCP listen error");
     exit(EXIT_FAILURE);
   }
+}
+
+void udp_connection() {
+  int server_fd;
+
+  struct sockaddr_in server_addr, client_addr;
+  socklen_t client_addr_len;
+
+  if ((server_fd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
+    write_log("UDP socket error");
+    exit(EXIT_FAILURE);
+  }
+
+  memset(&server_addr, 0, sizeof(server_addr));
+  server_addr.sin_family = AF_INET;
+  server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  server_addr.sin_port = htons(2424);
+
+  if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1) {
+    write_log("UDP bind error");
+    exit(EXIT_FAILURE);
+  }
+
+  while (1) {
+    char buf[100000] = { 0, };
+    client_addr_len = sizeof(client_addr);
+
+    int read_size = recvfrom(server_fd, buf, 100000, 0, (struct sockaddr*)&client_addr, &client_addr_len);
+    (void)read_size;
+  }
+
+  close(server_fd);
 }
 
 void* recv_packet(void* vparam) {
@@ -118,7 +150,7 @@ int main(void) {
 
   int server_fd;
   struct sockaddr_in address;
-  listening(&server_fd, &address);
+  tcp_connection(&server_fd, &address);
   int addr_size = sizeof(address);
 
   struct s_queue_wrapper wrapper;
