@@ -52,7 +52,7 @@ ssize_t write(int fd, const void* buf, size_t count) {
   end.pid = begin.pid;
   end.send_byte = send_byte;
   end.elapse_time = end_time - begin.begin_time;
-  sendto(sock, &end, sizeof(struct s_udp_begin), 0, (struct sockaddr*)(&serv_addr), sizeof(serv_addr));
+  sendto(sock, &end, sizeof(struct s_udp_end), 0, (struct sockaddr*)(&serv_addr), sizeof(serv_addr));
 
   return (send_byte);
 }

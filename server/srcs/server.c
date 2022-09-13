@@ -48,11 +48,18 @@ void* udp_connection() {
   while (1) {
     char buf[100000] = { 0, };
     client_addr_len = sizeof(client_addr);
+    // struct s_udp_begin  *begin;
+    // struct s_udp_end    *end;
 
     int read_size = recvfrom(server_fd, buf, 100000, 0, (struct sockaddr*)&client_addr, &client_addr_len);
-    (void)read_size;
+    if (read_size == sizeof(struct s_udp_begin)) {
+      printf("begin agent name %s\n", ((struct s_udp_begin*)buf)->agent_name);
+    } else if (read_size == sizeof(struct s_udp_end)) {
+      printf("end agent name %s\n", ((struct s_udp_end*)buf)->agent_name);
+    } else {
+      printf("else!!!!!!!!!!!!\n");
+    }
   }
-
   close(server_fd);
   return (0);
 }
@@ -138,7 +145,7 @@ int main(void) {
   signal(SIGHUP, SIG_IGN);
   close(STDIN_FILENO);
   g_debug_fd = dup(STDOUT_FILENO);
-  close(STDOUT_FILENO);
+  // close(STDOUT_FILENO);
   close(STDERR_FILENO);
   setsid();
 
