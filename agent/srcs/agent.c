@@ -1,6 +1,5 @@
 #include "agent.h"
 
-int g_debug_fd;
 char g_agent_name[9];
 extern pthread_mutex_t g_log_mutex;
 
@@ -21,7 +20,6 @@ int main(int argc, char* argv[]) {
 
   signal(SIGHUP, SIG_IGN);
   close(STDIN_FILENO);
-  g_debug_fd = dup(STDOUT_FILENO);
   close(STDOUT_FILENO);
   close(STDERR_FILENO);
   setsid();
