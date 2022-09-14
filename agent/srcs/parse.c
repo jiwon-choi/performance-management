@@ -286,6 +286,7 @@ void* parse_process(void* vparam) {
     struct s_packet* packet = malloc(sizeof(struct s_packet));
     packet->size = sizeof(struct s_header) + sizeof(struct s_process) * process_size;
     packet->data = malloc(packet->size);
+    memset(packet->data, 0, packet->size);
     packet->next = NULL;
 
     struct s_header* header = packet->data;
