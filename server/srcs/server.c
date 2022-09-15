@@ -147,6 +147,7 @@ int main(void) {
   setsid();
 
   mkdir("files", 0777);
+  mkdir("files/data", 0777);
   mkdir("files/logs", 0777);
   pthread_mutex_init(&g_log_mutex, NULL);
   write_log("Run server");

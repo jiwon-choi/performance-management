@@ -5,16 +5,17 @@
 #include <unistd.h>
 
 void save_stat(struct s_packet* packet) {
-  FILE* fp = fopen("files/data/stat", "a+");
-  if (!fp) {
-    mkdir("files/data", 0777);
-    fp = fopen("files/data/stat", "a+");
-  }
+  time_t raw_time = time(&raw_time);
+  char filename[50];
+  struct tm s_time;
+  localtime_r(&raw_time, &s_time);
+  sprintf(filename, "files/data/stat_%d-%02d-%02d", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
+
+  FILE* fp = fopen(filename, "a+");
 
   struct s_header* header = packet->data;
   struct s_stat* body = packet->data + sizeof(struct s_header);
 
-  time_t raw_time = time(&raw_time);
   char save_time[25];
   strncpy(save_time, ctime(&raw_time), 25);
   save_time[24] = 0;
@@ -27,16 +28,17 @@ void save_stat(struct s_packet* packet) {
 }
 
 void save_mem(struct s_packet* packet) {
-  FILE* fp = fopen("files/data/mem", "a+");
-  if (!fp) {
-    mkdir("files/data", 0777);
-    fp = fopen("files/data/mem", "a+");
-  }
+  time_t raw_time = time(&raw_time);
+  char filename[50];
+  struct tm s_time;
+  localtime_r(&raw_time, &s_time);
+  sprintf(filename, "files/data/mem_%d-%02d-%02d", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
+
+  FILE* fp = fopen(filename, "a+");
 
   struct s_header* header = packet->data;
   struct s_mem* body = packet->data + sizeof(struct s_header);
 
-  time_t raw_time = time(&raw_time);
   char save_time[25];
   strncpy(save_time, ctime(&raw_time), 25);
   save_time[24] = 0;
@@ -49,15 +51,16 @@ void save_mem(struct s_packet* packet) {
 }
 
 void save_net(struct s_packet* packet) {
-  FILE* fp = fopen("files/data/net", "a+");
-  if (!fp) {
-    mkdir("files/data", 0777);
-    fp = fopen("files/data/net", "a+");
-  }
+  time_t raw_time = time(&raw_time);
+  char filename[50];
+  struct tm s_time;
+  localtime_r(&raw_time, &s_time);
+  sprintf(filename, "files/data/net_%d-%02d-%02d", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
+
+  FILE* fp = fopen(filename, "a+");
 
   struct s_header* header = packet->data;
 
-  time_t raw_time = time(&raw_time);
   char save_time[25];
   strncpy(save_time, ctime(&raw_time), 25);
   save_time[24] = 0;
@@ -73,14 +76,16 @@ void save_net(struct s_packet* packet) {
 }
 
 void save_process(struct s_packet* packet) {
-  FILE* fp = fopen("files/data/process", "a+");
-  if (!fp) {
-    mkdir("files/data", 0777);
-    fp = fopen("files/data/process", "a+");
-  }
+  time_t raw_time = time(&raw_time);
+  char filename[50];
+  struct tm s_time;
+  localtime_r(&raw_time, &s_time);
+  sprintf(filename, "files/data/process_%d-%02d-%02d", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
+
+  FILE* fp = fopen(filename, "a+");
+
   struct s_header* header = packet->data;
 
-  time_t raw_time = time(&raw_time);
   char save_time[25];
   strncpy(save_time, ctime(&raw_time), 25);
   save_time[24] = 0;
