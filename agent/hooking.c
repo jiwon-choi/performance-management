@@ -18,6 +18,8 @@ struct s_udp_end    end;
 ssize_t (*origin_write)(int fd, const void* buf, size_t count);
 
 void __attribute__((constructor)) before_main() {
+  origin_write = (ssize_t (*)(int, const void*, size_t))dlsym(RTLD_NEXT, "write");
+
   if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
     printf("UDP socket error");
     exit(EXIT_FAILURE);
@@ -43,15 +45,13 @@ ssize_t write(int fd, const void* buf, size_t count) {
   begin.pkt_no = num++;
 
   sendto(sock, &begin, sizeof(struct s_udp_begin), 0, (struct sockaddr*)(&serv_addr), sizeof(serv_addr));
-  origin_write = (ssize_t (*)(int, const void*, size_t))dlsym(RTLD_NEXT, "write");
   time(&(begin.begin_time));
   ssize_t send_byte = (*origin_write)(fd, buf, count);
-  time_t end_time;
-  time(&end_time);
+  time(&(end.end_time));
   strcpy(end.agent_name, begin.agent_name);
   end.pid = begin.pid;
   end.send_byte = send_byte;
-  end.elapse_time = end_time - begin.begin_time;
+  end.elapse_time = end.end_time - begin.begin_time;
   sendto(sock, &end, sizeof(struct s_udp_end), 0, (struct sockaddr*)(&serv_addr), sizeof(serv_addr));
 
   return (send_byte);

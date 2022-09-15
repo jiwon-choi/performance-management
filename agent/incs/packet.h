@@ -76,6 +76,7 @@ enum type {
     char          agent_name[9];
     unsigned int  pid;
     int           send_byte;
+    time_t        end_time;
     time_t        elapse_time;
   };
 # pragma pack(pop)
