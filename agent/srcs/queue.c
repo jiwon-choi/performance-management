@@ -14,7 +14,7 @@ void enqueue(struct s_packet** head, struct s_packet* new) {
 }
 
 struct s_packet* dequeue(struct s_packet** head) {
-  if (!head || !*head) {
+  if (!*head) {
     return (NULL);
   }
   struct s_packet* pop = *head;
