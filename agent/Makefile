@@ -19,7 +19,7 @@ SRC			= agent.c \
 SRCS		= $(addprefix $(SRCS_DIR), $(SRC))
 OBJS		= $(addprefix $(OBJS_DIR), $(SRC:.c=.o))
 
-all : $(TARGET)
+all : $(TARGET) hooking
 
 $(TARGET) : $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS)
@@ -28,13 +28,16 @@ $(OBJS_DIR)%.o : $(SRCS_DIR)%.c
 	@mkdir -p $(OBJS_DIR)
 	$(CC) $(CFLAGS) -I $(INCS_DIR) -c $< -o $@
 
+hooking :
+	$(CC) -fPIC -shared -o hooking.so hooking.c -ldl
+
 clean :
 	$(RM) $(OBJS_DIR)
 
 fclean : clean
-	$(RM) $(TARGET)
+	$(RM) $(TARGET) hooking.so
 
 re : clean all
 
 
-.PHONY : all clean fclean re
+.PHONY : all clean fclean re hooking
