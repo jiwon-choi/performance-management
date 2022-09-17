@@ -1,4 +1,4 @@
-#include "../../agent/incs/packet.h"
+#include "packet.h"
 #include <stdio.h>
 #include <sys/stat.h>
 #include <string.h>

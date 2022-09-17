@@ -8,11 +8,11 @@ INCS_DIR		= ./incs/
 SRCS_DIR		= ./srcs/
 OBJS_DIR		= ./objs/
 
-SRC			= log.c \
-					queue.c \
-					save.c \
-					server.c \
-					sig.c
+INCLUDES		= -I./incs/ -I../library/incs/
+LIBRARYS		= -L ../library/ -lutils
+
+SRC			= save.c \
+					server.c
 
 SRCS		= $(addprefix $(SRCS_DIR), $(SRC))
 OBJS		= $(addprefix $(OBJS_DIR), $(SRC:.c=.o))
@@ -20,11 +20,11 @@ OBJS		= $(addprefix $(OBJS_DIR), $(SRC:.c=.o))
 all : $(TARGET)
 
 $(TARGET) : $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS)
+	$(CC) -o $(TARGET) $(OBJS) $(LIBRARYS)
 
 $(OBJS_DIR)%.o : $(SRCS_DIR)%.c
 	@mkdir -p $(OBJS_DIR)
-	$(CC) $(CFLAGS) -I $(INCS_DIR) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
 
 clean :
 	$(RM) $(OBJS_DIR)

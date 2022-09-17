@@ -8,36 +8,33 @@ INCS_DIR		= ./incs/
 SRCS_DIR		= ./srcs/
 OBJS_DIR		= ./objs/
 
+INCLUDES		= -I./incs/ -I../library/incs/
+LIBRARYS		= -L ../library/ -lutils
+
 SRC			= agent.c \
 					connect.c \
-					log.c \
 					parse.c \
-					queue.c \
-					send.c \
-					sig.c
+					send.c
 
 SRCS		= $(addprefix $(SRCS_DIR), $(SRC))
 OBJS		= $(addprefix $(OBJS_DIR), $(SRC:.c=.o))
 
-all : $(TARGET) hooking
+all : $(TARGET)
 
 $(TARGET) : $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS)
+	$(CC) -o $(TARGET) $(OBJS) $(LIBRARYS)
 
 $(OBJS_DIR)%.o : $(SRCS_DIR)%.c
 	@mkdir -p $(OBJS_DIR)
-	$(CC) $(CFLAGS) -I $(INCS_DIR) -c $< -o $@
-
-hooking :
-	$(CC) -fPIC -shared -o hooking.so hooking.c -ldl
+	$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
 
 clean :
 	$(RM) $(OBJS_DIR)
 
 fclean : clean
-	$(RM) $(TARGET) hooking.so
+	$(RM) $(TARGET)
 
 re : clean all
 
 
-.PHONY : all clean fclean re hooking
+.PHONY : all clean fclean re

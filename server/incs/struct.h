@@ -3,7 +3,7 @@
 
 # include <pthread.h>
 
-#include "../../agent/incs/packet.h"
+#include "packet.h"
 
 struct s_queue_wrapper {
   struct s_packet*  queue;
