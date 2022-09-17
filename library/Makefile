@@ -24,7 +24,7 @@ $(TARGET) : $(OBJS)
 all : $(TARGET)
 
 clean :
-	rm -rf $(OBJS)
+	rm -rf $(OBJS_DIR)
 
 fclean : clean
 	rm -rf $(TARGET)
