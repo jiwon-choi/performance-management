@@ -22,6 +22,7 @@ OBJS		= $(addprefix $(OBJS_DIR), $(SRC:.c=.o))
 all : $(TARGET)
 
 $(TARGET) : $(OBJS)
+	make -C ../library
 	$(CC) -o $(TARGET) $(OBJS) $(LIBRARYS)
 
 $(OBJS_DIR)%.o : $(SRCS_DIR)%.c
@@ -29,9 +30,11 @@ $(OBJS_DIR)%.o : $(SRCS_DIR)%.c
 	$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
 
 clean :
+	make -C ../library clean
 	$(RM) $(OBJS_DIR)
 
 fclean : clean
+	make -C ../library fclean
 	$(RM) $(TARGET)
 
 re : clean all
