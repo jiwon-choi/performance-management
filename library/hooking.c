@@ -56,5 +56,3 @@ ssize_t write(int fd, const void* buf, size_t count) {
 
   return (send_byte);
 }
-
-// gcc -fPIC -shared -o hook.so hooking.c -ldl

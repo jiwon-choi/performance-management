@@ -14,6 +14,8 @@ SRC			= log.c \
 SRCS    = $(addprefix $(SRCS_DIR), $(SRC))
 OBJS    = $(addprefix $(OBJS_DIR), $(SRC:.c=.o))
 
+all : $(TARGET) hooking
+
 $(OBJS_DIR)%.o : $(SRCS_DIR)%.c
 	@mkdir -p $(OBJS_DIR)
 	$(CC) $(CFLAGS) -I $(INCS_DIR) -c $< -o $@
@@ -21,13 +23,14 @@ $(OBJS_DIR)%.o : $(SRCS_DIR)%.c
 $(TARGET) : $(OBJS)
 	ar rcs $@ $?
 
-all : $(TARGET)
+hooking :
+	$(CC) -fPIC -shared -o hooking.so hooking.c -ldl
 
 clean :
 	rm -rf $(OBJS_DIR)
 
 fclean : clean
-	rm -rf $(TARGET)
+	rm -rf $(TARGET) hooking.so
 
 re : clean all
 
