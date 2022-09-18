@@ -3,7 +3,7 @@
 
 # include <pthread.h>
 
-#include "packet.h"
+# include "packet.h"
 
 struct s_queue_wrapper {
   struct s_packet*  queue;

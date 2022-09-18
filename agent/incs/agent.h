@@ -7,7 +7,7 @@
 # include <sys/stat.h>
 
 # include "parse.h"
-# include "send.h"
+# include "socket.h"
 # include "sig.h"
 # include "queue.h"
 # include "struct.h"

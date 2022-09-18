@@ -12,9 +12,8 @@ INCLUDES		= -I./incs/ -I../library/incs/
 LIBRARYS		= -L ../library/ -lutils
 
 SRC			= agent.c \
-					connect.c \
-					parse.c \
-					send.c
+					socket.c \
+					parse.c
 
 SRCS		= $(addprefix $(SRCS_DIR), $(SRC))
 OBJS		= $(addprefix $(OBJS_DIR), $(SRC:.c=.o))
