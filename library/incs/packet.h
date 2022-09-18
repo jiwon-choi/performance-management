@@ -3,10 +3,10 @@
 
 # include <time.h>
 
-# define STAT_LOCATION "/proc/stat"
-# define MEM_LOCATION "/proc/meminfo"
-# define NET_LOCATION "/proc/net/dev"
-# define PROC_LOCATION "/proc/"
+# define STAT_LOCATION "/Users/jiwon/proc/stat"
+# define MEM_LOCATION "/Users/jiwon/proc/meminfo"
+# define NET_LOCATION "/Users/jiwon/proc/net/dev"
+# define PROC_LOCATION "/Users/jiwon/proc/"
 
 # define MAX 10000
 # define CMDLINE_MAX 512

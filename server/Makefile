@@ -12,7 +12,8 @@ INCLUDES		= -I./incs/ -I../library/incs/
 LIBRARYS		= -L ../library/ -lutils
 
 SRC			= save.c \
-					server.c
+					server.c \
+					socket.c
 
 SRCS		= $(addprefix $(SRCS_DIR), $(SRC))
 OBJS		= $(addprefix $(OBJS_DIR), $(SRC:.c=.o))

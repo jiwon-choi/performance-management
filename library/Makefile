@@ -7,7 +7,8 @@ INCS_DIR    = ./incs/
 SRCS_DIR    = ./srcs/
 OBJS_DIR    = ./objs/
 
-SRC			= log.c \
+SRC			= init.c \
+					log.c \
 					queue.c \
 					sig.c
 

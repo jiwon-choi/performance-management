@@ -1,8 +1,4 @@
-#include "packet.h"
-#include <stdio.h>
-#include <sys/stat.h>
-#include <string.h>
-#include <unistd.h>
+#include "save.h"
 
 void save_udp(struct s_udp_begin* begin, struct s_udp_end* end) {
   time_t raw_time = time(&raw_time);

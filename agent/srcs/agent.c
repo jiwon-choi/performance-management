@@ -9,20 +9,7 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  pid_t pid = fork();
-
-  if (pid < 0) {
-    printf("Error fork()\n");
-    exit(EXIT_FAILURE);
-  } else if (pid > 0) {
-    exit(EXIT_SUCCESS);
-  }
-
-  signal(SIGHUP, SIG_IGN);
-  close(STDIN_FILENO);
-  close(STDOUT_FILENO);
-  close(STDERR_FILENO);
-  setsid();
+  init_daemon();
 
   mkdir("files", 0777);
   mkdir("files/logs", 0777);
