@@ -4,6 +4,26 @@
 #include <string.h>
 #include <unistd.h>
 
+void save_udp(struct s_udp_begin* begin, struct s_udp_end* end) {
+  time_t raw_time = time(&raw_time);
+  char filename[50];
+  struct tm s_time;
+  localtime_r(&raw_time, &s_time);
+  sprintf(filename, "files/data/%d-%02d-%02d_udp", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
+
+  FILE* fp = fopen(filename, "a+");
+
+
+  char save_time[25];
+  strncpy(save_time, ctime(&raw_time), 25);
+  save_time[24] = 0;
+
+  fprintf(fp, "%s | %-8s | ", save_time, begin->agent_name);
+	fprintf(fp, "pid %-6u | pkt no %-5d | begin time %-10ld | end time %-10ld | elapse time %-5ld", begin->pid, begin->pkt_no, begin->begin_time, end->end_time, end->elapse_time);
+  fprintf(fp, "\n");
+  fclose(fp);
+}
+
 void save_stat(struct s_packet* packet) {
   time_t raw_time = time(&raw_time);
   char filename[50];
