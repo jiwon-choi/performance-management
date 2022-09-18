@@ -9,7 +9,7 @@ void save_stat(struct s_packet* packet) {
   char filename[50];
   struct tm s_time;
   localtime_r(&raw_time, &s_time);
-  sprintf(filename, "files/data/stat_%d-%02d-%02d", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
+  sprintf(filename, "files/data/%d-%02d-%02d_stat", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
 
   FILE* fp = fopen(filename, "a+");
 
@@ -32,7 +32,7 @@ void save_mem(struct s_packet* packet) {
   char filename[50];
   struct tm s_time;
   localtime_r(&raw_time, &s_time);
-  sprintf(filename, "files/data/mem_%d-%02d-%02d", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
+  sprintf(filename, "files/data/%d-%02d-%02d_mem", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
 
   FILE* fp = fopen(filename, "a+");
 
@@ -55,7 +55,7 @@ void save_net(struct s_packet* packet) {
   char filename[50];
   struct tm s_time;
   localtime_r(&raw_time, &s_time);
-  sprintf(filename, "files/data/net_%d-%02d-%02d", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
+  sprintf(filename, "files/data/%d-%02d-%02d_net", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
 
   FILE* fp = fopen(filename, "a+");
 
@@ -80,7 +80,7 @@ void save_process(struct s_packet* packet) {
   char filename[50];
   struct tm s_time;
   localtime_r(&raw_time, &s_time);
-  sprintf(filename, "files/data/process_%d-%02d-%02d", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
+  sprintf(filename, "files/data/%d-%02d-%02d_process", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
 
   FILE* fp = fopen(filename, "a+");
 
