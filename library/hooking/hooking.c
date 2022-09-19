@@ -8,7 +8,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include "incs/packet.h"
+#include "packet.h"
+#include "utils.h"
 
 int sock;
 struct sockaddr_in  serv_addr;
@@ -45,9 +46,9 @@ ssize_t write(int fd, const void* buf, size_t count) {
   begin.pkt_no = num++;
 
   sendto(sock, &begin, sizeof(struct s_udp_begin), 0, (struct sockaddr*)(&serv_addr), sizeof(serv_addr));
-  time(&(begin.begin_time));
+  begin.begin_time = gettimeofnow();
   ssize_t send_byte = (*origin_write)(fd, buf, count);
-  time(&(end.end_time));
+  end.end_time = gettimeofnow();
   strcpy(end.agent_name, begin.agent_name);
   end.pid = begin.pid;
   end.send_byte = send_byte;

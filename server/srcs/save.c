@@ -15,7 +15,7 @@ void save_udp(struct s_udp_begin* begin, struct s_udp_end* end) {
   save_time[24] = 0;
 
   fprintf(fp, "%s | %-8s | ", save_time, begin->agent_name);
-	fprintf(fp, "pid %-6u | pkt no %-5d | begin time %-10ld | end time %-10ld | elapse time %-5ld", begin->pid, begin->pkt_no, begin->begin_time, end->end_time, end->elapse_time);
+	fprintf(fp, "pid %-6u | pkt no %-5d | begin time %-12f | end time %-12f | elapse time %-12f", begin->pid, begin->pkt_no, begin->begin_time, end->end_time, end->elapse_time);
   fprintf(fp, "\n");
   fclose(fp);
 }

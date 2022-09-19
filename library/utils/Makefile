@@ -14,7 +14,7 @@ SRC			= queue.c \
 SRCS    = $(addprefix $(SRCS_DIR), $(SRC))
 OBJS    = $(addprefix $(OBJS_DIR), $(SRC:.c=.o))
 
-all : $(TARGET) hooking
+all : $(TARGET)
 
 $(OBJS_DIR)%.o : $(SRCS_DIR)%.c
 	@mkdir -p $(OBJS_DIR)
@@ -23,14 +23,11 @@ $(OBJS_DIR)%.o : $(SRCS_DIR)%.c
 $(TARGET) : $(OBJS)
 	ar rcs $@ $?
 
-hooking :
-	$(CC) -fPIC -shared -o hooking.so hooking.c -ldl
-
 clean :
 	rm -rf $(OBJS_DIR)
 
 fclean : clean
-	rm -rf $(TARGET) hooking.so
+	rm -rf $(TARGET)
 
 re : clean all
 
