@@ -75,10 +75,18 @@ void* recv_packet(void* vparam) {
   struct s_recv_param* param = (struct s_recv_param*)vparam;
   int rd_size;
   char buf[sizeof(struct s_header)] = { 0, };
+  char agent_name[9] = "unknown";
+  char msg[512];
 
   while (1) {
-    if ((rd_size = read(param->socket, buf, sizeof(struct s_header))) <= 0) {
-      break;
+    int total_rd_size = 0;
+    while (total_rd_size < (int)sizeof(struct s_header)) {
+      if ((rd_size = read(param->socket, buf, sizeof(struct s_header))) <= 0) {
+        goto EXIT;
+      }
+      total_rd_size += rd_size;
+      sprintf(msg, "Receive %s header %dbytes, total %dbytes.", agent_name, rd_size, total_rd_size);
+      write_log(msg);
     }
 
     struct s_header* header = (struct s_header*)buf;
@@ -92,8 +100,11 @@ void* recv_packet(void* vparam) {
     } else if (header->type_of_body == PROCESS) {
       packet_size = sizeof(struct s_header) + sizeof(struct s_process) * header->number_of_body;
     } else {
-      continue;
+      sprintf(msg, "Wrong data type");
+      write_log(msg);
+      break;
     }
+    strcpy(agent_name, header->agent_name);
 
     struct s_packet* packet = malloc(sizeof(struct s_packet));
     packet->size = packet_size;
@@ -102,18 +113,28 @@ void* recv_packet(void* vparam) {
 
     memcpy(packet->data, header, sizeof(struct s_header));
     void* body = packet->data + sizeof(struct s_header);
-    if ((rd_size = read(param->socket, body, packet->size - sizeof(struct s_header))) <= 0) {
-      break;
+    while (total_rd_size < packet->size) {
+      if ((rd_size = read(param->socket, body, packet->size - sizeof(struct s_header))) <= 0) {
+        free(packet->data);
+        packet->data = NULL;
+        free(packet);
+        packet = NULL;
+        goto EXIT;
+      }
+      total_rd_size += rd_size;
+      sprintf(msg, "Receive %s body %dbytes, total %dbytes", agent_name, rd_size, total_rd_size);
+      write_log(msg);
     }
 
     pthread_mutex_lock(&(param->qwrapper->queue_mutex));
     enqueue(&param->qwrapper->queue, packet);
     pthread_mutex_unlock(&(param->qwrapper->queue_mutex));
-
-    char msg[512];
-    sprintf(msg, "Receive %s's data", header->agent_name);
-    write_log(msg);
   }
+
+EXIT:
+  sprintf(msg, "%s tcp disconnected", agent_name);
+  write_log(msg);
+  close(param->socket);
   free(vparam);
   return (0);
 }
