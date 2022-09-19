@@ -7,10 +7,9 @@ INCS_DIR    = ./incs/
 SRCS_DIR    = ./srcs/
 OBJS_DIR    = ./objs/
 
-SRC			= init.c \
-					log.c \
-					queue.c \
-					sig.c
+SRC			= queue.c \
+					sig.c \
+					utils.c
 
 SRCS    = $(addprefix $(SRCS_DIR), $(SRC))
 OBJS    = $(addprefix $(OBJS_DIR), $(SRC:.c=.o))
