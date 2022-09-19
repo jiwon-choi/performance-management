@@ -80,6 +80,7 @@ void* recv_packet(void* vparam) {
 
   while (1) {
     int total_rd_size = 0;
+    double begin_time = gettimeofnow();
     while (total_rd_size < (int)sizeof(struct s_header)) {
       if ((rd_size = read(param->socket, buf, sizeof(struct s_header))) <= 0) {
         goto EXIT;
@@ -125,6 +126,9 @@ void* recv_packet(void* vparam) {
       sprintf(msg, "Receive %s body %dbytes, total %dbytes", agent_name, rd_size, total_rd_size);
       write_log(msg);
     }
+    double end_time = gettimeofnow();
+    sprintf(msg, "Receive total %fms", end_time - begin_time);
+    write_log(msg);
 
     pthread_mutex_lock(&(param->qwrapper->queue_mutex));
     enqueue(&param->qwrapper->queue, packet);

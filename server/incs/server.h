@@ -9,8 +9,7 @@
 # include <signal.h>
 # include <unistd.h>
 
-# include "init.h"
-# include "log.h"
+# include "utils.h"
 # include "queue.h"
 # include "save.h"
 # include "sig.h"
