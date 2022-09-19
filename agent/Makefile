@@ -31,7 +31,6 @@ $(OBJS_DIR)%.o : $(SRCS_DIR)%.c
 
 clean :
 	make -C ../library/utils clean
-	make -C ../library/hooking clean
 	$(RM) $(OBJS_DIR)
 
 fclean : clean

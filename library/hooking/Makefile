@@ -1,28 +1,18 @@
 TARGET			= hooking.so
 
 CC					= gcc
-CFLAGS			= -Wall -Werror -Wextra
 
 SRC			= hooking.c
-
-SRCS		= $(SRC)
-OBJS		= $(SRC:.c=.o)
 
 all : $(TARGET)
 
 $(TARGET) : $(OBJS)
-	$(CC) -fPIC -shared -o $(TARGET) $(OBJS) -ldl
+	$(CC) -fPIC -shared -o $(TARGET) $(SRCS) -ldl
 
-%.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-clean :
-	rm -rf $(OBJS)
-
-fclean : clean
+fclean :
 	rm -rf $(TARGET)
 
-re : clean all
+re : fclean all
 
 
-.PHONY : all clean fclean re
+.PHONY : all fclean re
