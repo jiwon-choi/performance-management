@@ -6,15 +6,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <unistd.h>
 
-#include "packet.h"
-#include "utils.h"
+#include "../utils/incs/packet.h"
 
 int sock;
 struct sockaddr_in  serv_addr;
 struct s_udp_begin  begin;
 struct s_udp_end    end;
+
+double gettimeofnow() {
+  struct timeval tv;
+
+  gettimeofday(&tv, NULL);
+  return ((double)((tv.tv_sec * 1000000) + tv.tv_usec) / 1000);
+}
 
 ssize_t (*origin_write)(int fd, const void* buf, size_t count);
 

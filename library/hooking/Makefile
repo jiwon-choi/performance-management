@@ -3,9 +3,6 @@ TARGET			= hooking.so
 CC					= gcc
 CFLAGS			= -Wall -Werror -Wextra
 
-INCLUDES		= -I./incs/ -I../utils/incs/
-LIBRARYS		= -L ../utils/ -lutils
-
 SRC			= hooking.c
 
 SRCS		= $(SRC)
@@ -15,10 +12,10 @@ all : $(TARGET)
 
 $(TARGET) : $(OBJS)
 	make -C ../utils
-	$(CC) -fPIC -shared -o $(TARGET) $(OBJS) $(LIBRARYS) -ldl
+	$(CC) -fPIC -shared -o $(TARGET) $(OBJS) -ldl
 
 %.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean :
 	make -C ../utils clean
