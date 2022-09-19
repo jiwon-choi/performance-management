@@ -74,36 +74,45 @@ void* udp_connection() {
 void* recv_packet(void* vparam) {
   struct s_recv_param* param = (struct s_recv_param*)vparam;
   int rd_size;
-  char buf[100000] = { 0, };
+  char buf[sizeof(struct s_header)] = { 0, };
 
-  while ((rd_size = read(param->socket, buf, 100000)) > 0) {
-    buf[rd_size] = 0;
-    char* pbuf = buf;
-
-    while (rd_size > 0) {
-      struct s_packet* packet = malloc(sizeof(struct s_packet));
-      struct s_header* header = (struct s_header*)pbuf;
-      if (header->type_of_body == STAT) {
-        packet->size = sizeof(struct s_header) + sizeof(struct s_stat) * header->number_of_body;
-      } else if (header->type_of_body == MEM) {
-        packet->size = sizeof(struct s_header) + sizeof(struct s_mem) * header->number_of_body;
-      } else if (header->type_of_body == NET) {
-        packet->size = sizeof(struct s_header) + sizeof(struct s_net) * header->number_of_body;
-      } else if (header->type_of_body == PROCESS) {
-        packet->size = sizeof(struct s_header) + sizeof(struct s_process) * header->number_of_body;
-      }
-      packet->data = malloc(packet->size);
-      memcpy(packet->data, pbuf, packet->size);
-      packet->next = NULL;
-      rd_size -= packet->size;
-      pbuf += packet->size;
-      pthread_mutex_lock(&(param->qwrapper->queue_mutex));
-      enqueue(&param->qwrapper->queue, packet);
-      pthread_mutex_unlock(&(param->qwrapper->queue_mutex));
-      char buf[32];
-      sprintf(buf, "Receive %s's data", header->agent_name);
-      write_log(buf);
+  while (1) {
+    if ((rd_size = read(param->socket, buf, sizeof(struct s_header))) <= 0) {
+      break;
     }
+
+    struct s_header* header = (struct s_header*)buf;
+    int packet_size;
+    if (header->type_of_body == STAT) {
+      packet_size = sizeof(struct s_header) + sizeof(struct s_stat) * header->number_of_body;
+    } else if (header->type_of_body == MEM) {
+      packet_size = sizeof(struct s_header) + sizeof(struct s_mem) * header->number_of_body;
+    } else if (header->type_of_body == NET) {
+      packet_size = sizeof(struct s_header) + sizeof(struct s_net) * header->number_of_body;
+    } else if (header->type_of_body == PROCESS) {
+      packet_size = sizeof(struct s_header) + sizeof(struct s_process) * header->number_of_body;
+    } else {
+      continue;
+    }
+
+    struct s_packet* packet = malloc(sizeof(struct s_packet));
+    packet->size = packet_size;
+    packet->data = malloc(packet->size);
+    packet->next = NULL;
+
+    memcpy(packet->data, header, sizeof(struct s_header));
+    void* body = packet->data + sizeof(struct s_header);
+    if ((rd_size = read(param->socket, body, packet->size - sizeof(struct s_header))) <= 0) {
+      break;
+    }
+
+    pthread_mutex_lock(&(param->qwrapper->queue_mutex));
+    enqueue(&param->qwrapper->queue, packet);
+    pthread_mutex_unlock(&(param->qwrapper->queue_mutex));
+
+    char msg[512];
+    sprintf(msg, "Receive %s's data", header->agent_name);
+    write_log(msg);
   }
   free(vparam);
   return (0);
