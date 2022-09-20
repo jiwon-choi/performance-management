@@ -235,7 +235,7 @@ void* parse_net(void* vparam) {
     header->agent_name[8] = 0;
     strncpy(header->time, ctime(&raw_time), 25);
     header->time[24] = 0;
-    header->type_of_body = NET;
+    header->type_of_body = NETWORK;
     header->number_of_body = net_size;
 
     int chunk_idx = 0;

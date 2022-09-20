@@ -28,13 +28,13 @@ int main(int argc, char* argv[]) {
 
   pthread_create(&tid[STAT], NULL, parse_stat, &qwrapper);
   pthread_create(&tid[MEM], NULL, parse_mem, &qwrapper);
-  pthread_create(&tid[NET], NULL, parse_net, &qwrapper);
+  pthread_create(&tid[NETWORK], NULL, parse_net, &qwrapper);
   pthread_create(&tid[PROCESS], NULL, parse_process, &qwrapper);
   pthread_create(&tid[SEND], NULL, send_packet, &qwrapper);
 
   pthread_join(tid[STAT], NULL);
   pthread_join(tid[MEM], NULL);
-  pthread_join(tid[NET], NULL);
+  pthread_join(tid[NETWORK], NULL);
   pthread_join(tid[PROCESS], NULL);
   pthread_join(tid[SEND], NULL);
 

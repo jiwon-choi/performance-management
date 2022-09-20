@@ -1,4 +1,6 @@
 #include "save.h"
+#include "utils.h"
+#include <mysql.h>
 
 void save_udp(struct s_udp_begin* begin, struct s_udp_end* end) {
   // write_log("Save udp");
@@ -31,7 +33,7 @@ void save_stat(struct s_packet* packet) {
   localtime_r(&raw_time, &s_time);
   sprintf(filename, "files/data/%d-%02d-%02d_stat", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
 
-  FILE* fp = fopen(filename, "a+");
+//  FILE* fp = fopen(filename, "a+");
 
   struct s_header* header = packet->data;
   struct s_stat* body = packet->data + sizeof(struct s_header);
@@ -40,11 +42,32 @@ void save_stat(struct s_packet* packet) {
   strncpy(save_time, ctime(&raw_time), 25);
   save_time[24] = 0;
 
+	/*
   fprintf(fp, "%s | %s | %-8s | ", header->time, save_time, header->agent_name);
   fprintf(fp, "user %-10d | sys %-10d | idle %-10d | iowait %-10d",
           body->user, body->sys, body->idle, body->iowait);
   fprintf(fp, "\n");
   fclose(fp);
+	*/
+	MYSQL* conn;
+//	MYSQL_RES* res;
+	char* database = "exem";
+	char str[10000];
+
+	conn = mysql_init(NULL);
+	if (!mysql_real_connect(conn, "localhost", "root", "root", 0, 0, 0, 0)) {
+		write_log("mysql connection failed");
+		return;
+	}
+//	res = mysql_use_result(conn);
+	sprintf(str, "create database %s;", database);
+	mysql_query(conn, str);
+	sprintf(str, "use %s;", database);
+	mysql_query(conn, str);
+	mysql_query(conn, "create table stat ( agentTime varchar(30), saveTime varchar(30), agentName varchar(10), user int, sys int, idle int, iowait int );");
+	sprintf(str, "insert into stat values (\"%s\", \"%s\", \"%s\", %d, %d, %d, %d);", header->time, save_time, header->agent_name, body->user, body->sys, body->idle, body->iowait);
+	mysql_query(conn, str);
+	mysql_close(conn);
 }
 
 void save_mem(struct s_packet* packet) {

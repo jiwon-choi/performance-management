@@ -19,7 +19,7 @@ void* run_worker(void* vparam) {
       save_stat(pop);
     } else if (header->type_of_body == MEM) {
       save_mem(pop);
-    } else if (header->type_of_body == NET) {
+    } else if (header->type_of_body == NETWORK) {
       save_net(pop);
     } else if (header->type_of_body == PROCESS) {
       save_process(pop);

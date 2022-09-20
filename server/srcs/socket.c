@@ -104,7 +104,7 @@ void* recv_packet(void* vparam) {
       packet_size = sizeof(struct s_header) + sizeof(struct s_stat) * header->number_of_body;
     } else if (header->type_of_body == MEM) {
       packet_size = sizeof(struct s_header) + sizeof(struct s_mem) * header->number_of_body;
-    } else if (header->type_of_body == NET) {
+    } else if (header->type_of_body == NETWORK) {
       packet_size = sizeof(struct s_header) + sizeof(struct s_net) * header->number_of_body;
     } else if (header->type_of_body == PROCESS) {
       packet_size = sizeof(struct s_header) + sizeof(struct s_process) * header->number_of_body;

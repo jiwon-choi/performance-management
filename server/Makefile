@@ -8,8 +8,8 @@ INCS_DIR		= ./incs/
 SRCS_DIR		= ./srcs/
 OBJS_DIR		= ./objs/
 
-INCLUDES		= -I./incs/ -I../library/incs/
-LIBRARYS		= -L ../library/ -lutils
+INCLUDES		= -I./incs/ -I../library/incs/ -I/usr/include/mysql
+LIBRARYS		= -L../library/ -lutils -L/usr/lib/mysql -lmysqlclient
 
 SRC			= save.c \
 					server.c \
