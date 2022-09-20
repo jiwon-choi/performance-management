@@ -10,21 +10,19 @@ int main(int argc, char* argv[]) {
   }
 
   init_daemon();
-
   mkdir("files", 0777);
   mkdir("files/logs", 0777);
   pthread_mutex_init(&g_log_mutex, NULL);
   strncpy(g_agent_name, argv[1], 9);
   g_agent_name[8] = 0;
-  char buf[32];
-  sprintf(buf, "Run Agent <%s>", g_agent_name);
-  write_log(buf);
-
   set_signal();
+
+  char msg[32];
+  sprintf(msg, "Run Agent {%s}", g_agent_name);
+  write_log(msg);
 
   pthread_t tid[5];
   struct s_queue_wrapper qwrapper;
-
   qwrapper.queue = NULL;
   pthread_mutex_init(&qwrapper.queue_mutex, NULL);
 
@@ -41,6 +39,7 @@ int main(int argc, char* argv[]) {
   pthread_join(tid[SEND], NULL);
 
   pthread_mutex_destroy(&qwrapper.queue_mutex);
+  // pthread_mutex_destroy(&g_log_mutex);
 
   return (0);
 }
