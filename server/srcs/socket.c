@@ -81,15 +81,16 @@ void* udp_connection() {
 void* recv_packet(void* vparam) {
   struct s_recv_param* param = (struct s_recv_param*)vparam;
   int rd_size;
-  char buf[sizeof(struct s_header)] = { 0, };
-  char agent_name[9] = "unknown";
+  char agent_name[9] = "noname";
   char msg[512];
 
   while (1) {
     int total_rd_size = 0;
     double begin_time = gettimeofnow();
+    struct s_header header_buf;
+
     while (total_rd_size < (int)sizeof(struct s_header)) {
-      if ((rd_size = read(param->socket, buf, sizeof(struct s_header))) <= 0) {
+      if ((rd_size = read(param->socket, (&header_buf) + total_rd_size, sizeof(struct s_header))) <= 0) {
         goto EXIT;
       }
       total_rd_size += rd_size;
@@ -97,7 +98,7 @@ void* recv_packet(void* vparam) {
       write_log(msg);
     }
 
-    struct s_header* header = (struct s_header*)buf;
+    struct s_header* header = &header_buf;
     int packet_size;
     if (header->type_of_body == STAT) {
       packet_size = sizeof(struct s_header) + sizeof(struct s_stat) * header->number_of_body;
@@ -120,9 +121,8 @@ void* recv_packet(void* vparam) {
     packet->next = NULL;
 
     memcpy(packet->data, header, sizeof(struct s_header));
-    void* body = packet->data + sizeof(struct s_header);
     while (total_rd_size < packet->size) {
-      if ((rd_size = read(param->socket, body, packet->size - sizeof(struct s_header))) <= 0) {
+      if ((rd_size = read(param->socket, packet->data + total_rd_size, packet->size - sizeof(struct s_header))) <= 0) {
         free(packet->data);
         packet->data = NULL;
         free(packet);
