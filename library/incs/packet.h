@@ -68,7 +68,7 @@ enum type {
     unsigned int  pid;
     char          peer_ip[15];
     int           port;
-    double        begin_time;
+    time_t        begin_time;
     int           pkt_no;
   };
 
@@ -76,8 +76,8 @@ enum type {
     char          agent_name[9];
     unsigned int  pid;
     int           send_byte;
-    double        end_time;
-    double        elapse_time;
+    time_t        end_time;
+    time_t        elapse_time;
   };
 # pragma pack(pop)
 

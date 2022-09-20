@@ -1,8 +1,6 @@
 #include "save.h"
 
 void save_udp(struct s_udp_begin* begin, struct s_udp_end* end) {
-  // write_log("Save udp");
-
   time_t raw_time = time(&raw_time);
   char filename[50];
   struct tm s_time;
@@ -17,14 +15,12 @@ void save_udp(struct s_udp_begin* begin, struct s_udp_end* end) {
   save_time[24] = 0;
 
   fprintf(fp, "%s | %-8s | ", save_time, begin->agent_name);
-	fprintf(fp, "pid %-6u | pkt no %-5d | begin time %-12f | end time %-12f | elapse time %-12f", begin->pid, begin->pkt_no, begin->begin_time, end->end_time, end->elapse_time);
+	fprintf(fp, "pid %-6u | pkt no %-5d | begin time %-10ld | end time %-10ld | elapse time %-5ld", begin->pid, begin->pkt_no, begin->begin_time, end->end_time, end->elapse_time);
   fprintf(fp, "\n");
   fclose(fp);
 }
 
 void save_stat(struct s_packet* packet) {
-  // write_log("Save stat");
-
   time_t raw_time = time(&raw_time);
   char filename[50];
   struct tm s_time;
@@ -48,8 +44,6 @@ void save_stat(struct s_packet* packet) {
 }
 
 void save_mem(struct s_packet* packet) {
-  // write_log("Save mem");
-
   time_t raw_time = time(&raw_time);
   char filename[50];
   struct tm s_time;
@@ -73,8 +67,6 @@ void save_mem(struct s_packet* packet) {
 }
 
 void save_net(struct s_packet* packet) {
-  // write_log("Save net");
-
   time_t raw_time = time(&raw_time);
   char filename[50];
   struct tm s_time;
@@ -100,8 +92,6 @@ void save_net(struct s_packet* packet) {
 }
 
 void save_process(struct s_packet* packet) {
-  // write_log("Save process");
-
   time_t raw_time = time(&raw_time);
   char filename[50];
   struct tm s_time;

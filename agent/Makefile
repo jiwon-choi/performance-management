@@ -8,8 +8,8 @@ INCS_DIR		= ./incs/
 SRCS_DIR		= ./srcs/
 OBJS_DIR		= ./objs/
 
-INCLUDES		= -I./incs/ -I../library/utils/incs/
-LIBRARYS		= -L ../library/utils/ -lutils
+INCLUDES		= -I./incs/ -I../library/incs/
+LIBRARYS		= -L ../library/ -lutils
 
 SRC			= agent.c \
 					socket.c \
@@ -21,8 +21,7 @@ OBJS		= $(addprefix $(OBJS_DIR), $(SRC:.c=.o))
 all : $(TARGET)
 
 $(TARGET) : $(OBJS)
-	make -C ../library/utils
-	make -C ../library/hooking
+	make -C ../library
 	$(CC) -o $(TARGET) $(OBJS) $(LIBRARYS)
 
 $(OBJS_DIR)%.o : $(SRCS_DIR)%.c
@@ -30,12 +29,11 @@ $(OBJS_DIR)%.o : $(SRCS_DIR)%.c
 	$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
 
 clean :
-	make -C ../library/utils clean
+	make -C ../library clean
 	$(RM) $(OBJS_DIR)
 
 fclean : clean
-	make -C ../library/utils fclean
-	make -C ../library/hooking fclean
+	make -C ../library fclean
 	$(RM) $(TARGET)
 
 re : clean all

@@ -6,22 +6,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <sys/time.h>
 #include <unistd.h>
 
-#include "../utils/incs/packet.h"
+#include "incs/packet.h"
 
 int sock;
 struct sockaddr_in  serv_addr;
 struct s_udp_begin  begin;
 struct s_udp_end    end;
-
-double gettimeofnow() {
-  struct timeval tv;
-
-  gettimeofday(&tv, NULL);
-  return ((double)((tv.tv_sec * 1000000) + tv.tv_usec) / 1000);
-}
 
 ssize_t (*origin_write)(int fd, const void* buf, size_t count);
 
@@ -29,6 +21,7 @@ void __attribute__((constructor)) before_main() {
   origin_write = (ssize_t (*)(int, const void*, size_t))dlsym(RTLD_NEXT, "write");
 
   if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
+    // printf("UDP socket error");
     exit(EXIT_FAILURE);
   }
 
@@ -52,9 +45,9 @@ ssize_t write(int fd, const void* buf, size_t count) {
   begin.pkt_no = num++;
 
   sendto(sock, &begin, sizeof(struct s_udp_begin), 0, (struct sockaddr*)(&serv_addr), sizeof(serv_addr));
-  begin.begin_time = gettimeofnow();
+  time(&(begin.begin_time));
   ssize_t send_byte = (*origin_write)(fd, buf, count);
-  end.end_time = gettimeofnow();
+  time(&(end.end_time));
   strcpy(end.agent_name, begin.agent_name);
   end.pid = begin.pid;
   end.send_byte = send_byte;

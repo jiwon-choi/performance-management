@@ -6,7 +6,7 @@ void init_daemon() {
   pid_t pid = fork();
 
   if (pid < 0) {
-    write(STDERR_FILENO, "fork error\n", 11);
+    write(STDERR_FILENO, "Error fork()\n", 13);
     exit(EXIT_FAILURE);
   } else if (pid > 0) {
     exit(EXIT_SUCCESS);
