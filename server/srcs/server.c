@@ -27,6 +27,7 @@ void* run_worker(void* vparam) {
     free(pop->data);
     pop->data = NULL;
     free(pop);
+    pop = NULL;
   }
   return (0);
 }
@@ -38,9 +39,9 @@ int main(void) {
   mkdir("files/data", 0777);
   mkdir("files/logs", 0777);
   pthread_mutex_init(&g_log_mutex, NULL);
-  write_log("Run server");
-
   set_signal();
+
+  write_log("Run server");
 
   int server_fd;
   struct sockaddr_in address;
@@ -52,19 +53,19 @@ int main(void) {
   pthread_mutex_init(&wrapper.queue_mutex, NULL);
 
   pthread_t tid;
-  for (int i = 0; i < 8; i++) {
-    char buf[40];
-    pthread_create(&tid, NULL, run_worker, &wrapper);
-    pthread_detach(tid);
-    sprintf(buf, "Create worker thread %d", i + 1);
-    write_log(buf);
-  }
-
   pthread_create(&tid, NULL, udp_connection, NULL);
   pthread_detach(tid);
-  write_log("Create UDP thread");
 
-  write_log("Start TCP listen");
+  for (int i = 0; i < 8; i++) {
+    char msg[40];
+    pthread_create(&tid, NULL, run_worker, &wrapper);
+    pthread_detach(tid);
+    sprintf(msg, "Created worker thread %d", i + 1);
+    write_log(msg);
+  }
+
+
+  write_log("Waiting TCP accept");
   struct s_recv_param* data;
   while (1) {
     data = malloc(sizeof(struct s_recv_param));
@@ -72,10 +73,10 @@ int main(void) {
     if ((data->socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addr_size)) < 0) {
       exit(EXIT_FAILURE);
     }
-    write_log("Accept an agent");
+    write_log("Accepted an agent");
     pthread_create(&tid, NULL, recv_packet, data);
     pthread_detach(tid);
-    write_log("Create recv thread");
+    write_log("Created recv thread");
   }
 
   return (0);

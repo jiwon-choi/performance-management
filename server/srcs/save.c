@@ -1,6 +1,8 @@
 #include "save.h"
 
 void save_udp(struct s_udp_begin* begin, struct s_udp_end* end) {
+  // write_log("Save udp");
+
   time_t raw_time = time(&raw_time);
   char filename[50];
   struct tm s_time;
@@ -21,6 +23,8 @@ void save_udp(struct s_udp_begin* begin, struct s_udp_end* end) {
 }
 
 void save_stat(struct s_packet* packet) {
+  // write_log("Save stat");
+
   time_t raw_time = time(&raw_time);
   char filename[50];
   struct tm s_time;
@@ -44,6 +48,8 @@ void save_stat(struct s_packet* packet) {
 }
 
 void save_mem(struct s_packet* packet) {
+  // write_log("Save mem");
+
   time_t raw_time = time(&raw_time);
   char filename[50];
   struct tm s_time;
@@ -67,6 +73,8 @@ void save_mem(struct s_packet* packet) {
 }
 
 void save_net(struct s_packet* packet) {
+  // write_log("Save net");
+
   time_t raw_time = time(&raw_time);
   char filename[50];
   struct tm s_time;
@@ -92,6 +100,8 @@ void save_net(struct s_packet* packet) {
 }
 
 void save_process(struct s_packet* packet) {
+  // write_log("Save process");
+
   time_t raw_time = time(&raw_time);
   char filename[50];
   struct tm s_time;

@@ -23,6 +23,9 @@ void signal_handler(int sig) {
   case SIGTERM:
     write_log("Signal SIGTERM");
     break;
+  case SIGKILL:
+    write_log("Signal SIGKILL");
+    break;
   default:
     write_log("Signal another");
   }
@@ -38,4 +41,5 @@ void set_signal() {
   signal(SIGBUS, signal_handler);
   signal(SIGSEGV, signal_handler);
   signal(SIGTERM, signal_handler);
+  signal(SIGKILL, signal_handler);
 }

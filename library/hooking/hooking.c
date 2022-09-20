@@ -29,7 +29,6 @@ void __attribute__((constructor)) before_main() {
   origin_write = (ssize_t (*)(int, const void*, size_t))dlsym(RTLD_NEXT, "write");
 
   if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
-    // printf("UDP socket error");
     exit(EXIT_FAILURE);
   }
 
