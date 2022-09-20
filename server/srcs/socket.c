@@ -21,6 +21,7 @@ void tcp_connection(int* server_fd, struct sockaddr_in* address) {
     write_log("TCP listen error");
     exit(EXIT_FAILURE);
   }
+  write_log("TCP ready");
 }
 
 void* udp_connection() {
@@ -43,10 +44,12 @@ void* udp_connection() {
     write_log("UDP bind error");
     exit(EXIT_FAILURE);
   }
+  write_log("UDP ready");
 
   while (1) {
     char buf[100000] = { 0, };
     client_addr_len = sizeof(client_addr);
+    char msg[100];
     struct s_udp_begin* begin;
     struct s_udp_end* end;
 
@@ -57,6 +60,8 @@ void* udp_connection() {
     if (read_size != sizeof(struct s_udp_begin))
       continue;
     begin = (struct s_udp_begin*) buf;
+    sprintf(msg, "Recv %s udp begin %dbytes", begin->agent_name, read_size);
+    write_log(msg);
 
     if ((read_size = recvfrom(server_fd, buf, sizeof(struct s_udp_end), 0, (struct sockaddr*)&client_addr, &client_addr_len)) < 0)
       continue;
@@ -64,6 +69,8 @@ void* udp_connection() {
     if (read_size != sizeof(struct s_udp_end))
       continue;
     end = (struct s_udp_end*)buf;
+    sprintf(msg, "Recv %s udp begin %dbytes", end->agent_name, read_size);
+    write_log(msg);
 
     save_udp(begin, end);
   }
