@@ -3,20 +3,21 @@
 extern pthread_mutex_t g_log_mutex;
 
 void* run_worker(void* vparam) {
-  struct s_queue_wrapper* param = (struct s_queue_wrapper*)vparam;
+//  struct s_queue_wrapper* param = (struct s_queue_wrapper*)vparam;
+	struct s_worker_param* param = (struct s_worker_param*)vparam;
 
   while (1) {
-    if (!param->queue) {
+    if (!param->qwrapper->queue) {
       sleep(1);
       continue;
     }
-    pthread_mutex_lock(&(param->queue_mutex));
-    struct s_packet* pop = dequeue(&(param->queue));
-    pthread_mutex_unlock(&(param->queue_mutex));
+    pthread_mutex_lock(&(param->qwrapper->queue_mutex));
+    struct s_packet* pop = dequeue(&(param->qwrapper->queue));
+    pthread_mutex_unlock(&(param->qwrapper->queue_mutex));
     if (!pop) continue;
     struct s_header* header = pop->data;
     if (header->type_of_body == STAT) {
-      save_stat(pop);
+      save_stat(pop, param->db);
     } else if (header->type_of_body == MEM) {
       save_mem(pop);
     } else if (header->type_of_body == NETWORK) {
@@ -56,9 +57,21 @@ int main(void) {
   pthread_create(&tid, NULL, udp_connection, NULL);
   pthread_detach(tid);
 
+	struct s_worker_param worker_data;
+	worker_data.db = mysql_init(NULL);
+	if (!mysql_real_connect(worker_data.db, "localhost", "root", "root", 0, 0, 0, 0)) {
+		write_log("mysql connection failed");
+		return (EXIT_FAILURE);
+	}
+	mysql_query(worker_data.db, "create database exem;");
+	mysql_query(worker_data.db, "use exem;");
+	mysql_query(worker_data.db, "create table stat ( agentTime varchar(30), saveTime varchar(30), agentName varchar(10), user int, sys int, idle int, iowait int );");
+
+	worker_data.qwrapper = &wrapper;
+
   for (int i = 0; i < 8; i++) {
     char msg[40];
-    pthread_create(&tid, NULL, run_worker, &wrapper);
+    pthread_create(&tid, NULL, run_worker, &worker_data);
     pthread_detach(tid);
     sprintf(msg, "Created worker thread %d", i + 1);
     write_log(msg);
