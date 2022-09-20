@@ -11,7 +11,7 @@
 # include <unistd.h>
 
 void init_daemon();
-void write_log(char* msg);
+void write_log(const char* msg);
 double gettimeofnow();
 
 #endif

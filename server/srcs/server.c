@@ -19,11 +19,11 @@ void* run_worker(void* vparam) {
     if (header->type_of_body == STAT) {
       save_stat(pop, param->db);
     } else if (header->type_of_body == MEM) {
-      save_mem(pop);
+      save_mem(pop, param->db);
     } else if (header->type_of_body == NETWORK) {
-      save_net(pop);
+      save_net(pop, param->db);
     } else if (header->type_of_body == PROCESS) {
-      save_process(pop);
+      save_process(pop, param->db);
     }
     free(pop->data);
     pop->data = NULL;
@@ -66,16 +66,20 @@ int main(void) {
 	mysql_query(worker_data.db, "create database exem;");
 	mysql_query(worker_data.db, "use exem;");
 	mysql_query(worker_data.db, "create table stat ( agentTime varchar(30), saveTime varchar(30), agentName varchar(10), user int, sys int, idle int, iowait int );");
+	mysql_query(worker_data.db, "create table mem ( agentTime varchar(30), saveTime varchar(30), agentName varchar(10), mem_total int, mem_free int, swap_total int, swap_free int );");
+	mysql_query(worker_data.db, "create table net ( agentTime varchar(30), saveTime varchar(30), agentName varchar(10), interface varchar(16), receive_bytes int, receive_packets int, transmit_bytes int, transmit_packets int );");
+	mysql_query(worker_data.db, "create table process ( agentTime varchar(30), saveTime varchar(30), agentName varchar(10), pid int unsigned, ppid int unsigned, loginuid int unsigned, cutime bigint, cstime bigint, utime bigint unsigned, stime bigint unsigned, comm varchar(256), username varchar(8), cmdline varchar(512) );");
 
 	worker_data.qwrapper = &wrapper;
 
-  for (int i = 0; i < 8; i++) {
-    char msg[40];
+//  for (int i = 0; i < 8; i++) {
+//    char msg[40];
     pthread_create(&tid, NULL, run_worker, &worker_data);
     pthread_detach(tid);
-    sprintf(msg, "Created worker thread %d", i + 1);
-    write_log(msg);
-  }
+    write_log("Created worker thread");
+//    sprintf(msg, "Created worker thread %d", i + 1);
+//    write_log(msg);
+//  }
 
   write_log("Waiting TCP accept");
   struct s_recv_param* data;

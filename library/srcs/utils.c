@@ -19,7 +19,7 @@ void init_daemon() {
   setsid();
 }
 
-void write_log(char* msg) {
+void write_log(const char* msg) {
   time_t tm;
   char str_time[25];
 
