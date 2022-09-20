@@ -46,12 +46,12 @@ void* udp_connection() {
   }
   write_log("UDP ready");
 
+  struct s_udp_begin* begin;
+  struct s_udp_end* end;
   while (1) {
     char buf[100000] = { 0, };
     client_addr_len = sizeof(client_addr);
     char msg[100];
-    struct s_udp_begin* begin;
-    struct s_udp_end* end;
 
     int read_size;
     if ((read_size = recvfrom(server_fd, buf, sizeof(struct s_udp_begin), 0, (struct sockaddr*)&client_addr, &client_addr_len)) < 0)
@@ -69,7 +69,7 @@ void* udp_connection() {
     if (read_size != sizeof(struct s_udp_end))
       continue;
     end = (struct s_udp_end*)buf;
-    sprintf(msg, "Recv %s udp begin %dbytes", end->agent_name, read_size);
+    sprintf(msg, "Recv %s udp end %dbytes", end->agent_name, read_size);
     write_log(msg);
 
     save_udp(begin, end);

@@ -53,6 +53,9 @@ int main(void) {
   pthread_mutex_init(&wrapper.queue_mutex, NULL);
 
   pthread_t tid;
+  pthread_create(&tid, NULL, udp_connection, NULL);
+  pthread_detach(tid);
+
   for (int i = 0; i < 8; i++) {
     char msg[40];
     pthread_create(&tid, NULL, run_worker, &wrapper);
@@ -60,9 +63,6 @@ int main(void) {
     sprintf(msg, "Created worker thread %d", i + 1);
     write_log(msg);
   }
-
-  pthread_create(&tid, NULL, udp_connection, NULL);
-  pthread_detach(tid);
 
   write_log("Waiting TCP accept");
   struct s_recv_param* data;
