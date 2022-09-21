@@ -65,7 +65,6 @@ void* send_packet(void* vparam) {
     int write_size = 0;
     double begin_time = gettimeofnow();
     if ((write_size = write(g_socket, pop->data, pop->size)) < 0) {
-      write_log("Broken socket");
       sleep(1);
       continue;
     }
