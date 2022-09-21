@@ -49,6 +49,7 @@ void* send_packet(void* vparam) {
   signal(SIGPIPE, tcp_reconnect);
 
   char msg[100];
+	struct s_packet* pop = NULL;
 
   while (1) {
     if (!param->queue) {
@@ -56,10 +57,14 @@ void* send_packet(void* vparam) {
       continue;
     }
 
-    struct s_packet* tmp = peek(&(param->queue));
+		if (!pop) {
+	    pthread_mutex_lock(&(param->queue_mutex));
+	    pop = dequeue(&(param->queue));
+	    pthread_mutex_unlock(&(param->queue_mutex));
+		}
     int write_size = 0;
     double begin_time = gettimeofnow();
-    if ((write_size = write(g_socket, tmp->data, tmp->size)) < 0) {
+    if ((write_size = write(g_socket, pop->data, pop->size)) < 0) {
       write_log("Broken socket");
       sleep(1);
       continue;
@@ -67,9 +72,6 @@ void* send_packet(void* vparam) {
     double end_time = gettimeofnow();
     sprintf(msg, "Sent %dbytes, %fms", write_size, end_time - begin_time);
     write_log(msg);
-    pthread_mutex_lock(&(param->queue_mutex));
-    struct s_packet* pop = dequeue(&(param->queue));
-    pthread_mutex_unlock(&(param->queue_mutex));
     free(pop->data);
     pop->data = NULL;
     free(pop);
