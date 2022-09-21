@@ -14,7 +14,7 @@
 # define PORT 4242
 
 void tcp_connection(int* server_fd, struct sockaddr_in* address);
-void* udp_connection();
+void* udp_connection(void* db);
 void* recv_packet(void* vparam);
 
 #endif

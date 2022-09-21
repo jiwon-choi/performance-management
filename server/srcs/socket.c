@@ -24,7 +24,7 @@ void tcp_connection(int* server_fd, struct sockaddr_in* address) {
   write_log("TCP ready");
 }
 
-void* udp_connection() {
+void* udp_connection(void* vdb) {
   int server_fd;
 
   struct sockaddr_in server_addr, client_addr;
@@ -72,7 +72,7 @@ void* udp_connection() {
     sprintf(msg, "Recv %s udp end %dbytes", end->agent_name, read_size);
     write_log(msg);
 
-    save_udp(begin, end);
+    save_udp(begin, end, vdb);
   }
   close(server_fd);
   return (0);
