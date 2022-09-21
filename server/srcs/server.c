@@ -86,6 +86,7 @@ int main(void) {
     data = malloc(sizeof(struct s_recv_param));
     data->qwrapper = &wrapper;
     if ((data->socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addr_size)) < 0) {
+			free(data);
       exit(EXIT_FAILURE);
     }
     write_log("Accepted an agent");
