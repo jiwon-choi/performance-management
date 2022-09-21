@@ -76,7 +76,6 @@ int main(void) {
     char msg[40];
     pthread_create(&tid, NULL, run_worker, &worker_data);
     pthread_detach(tid);
-//    write_log("Created worker thread");
     sprintf(msg, "Created worker thread %d", i + 1);
     write_log(msg);
   }
