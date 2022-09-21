@@ -16,7 +16,7 @@
 enum type {
   STAT = 1,
   MEM,
-  NET,
+  NETWORK,
   PROCESS,
 };
 
