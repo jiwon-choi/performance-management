@@ -31,7 +31,7 @@ void write_log(const char* msg) {
   char filename[50];
   struct tm s_time;
   localtime_r(&tm, &s_time);
-  sprintf(filename, "files/logs/%d-%02d-%02d_log", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
+  sprintf(filename, "logs/%d-%02d-%02d_log", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
 
   FILE* fp = fopen(filename, "a+");
   fprintf(fp, "[%s] %s\n", str_time, msg);

@@ -6,10 +6,8 @@ void save_udp(struct s_udp_begin* begin, struct s_udp_end* end, MYSQL* db) {
   write_log("Save udp");
 
   time_t raw_time = time(&raw_time);
-  char filename[50];
   struct tm s_time;
   localtime_r(&raw_time, &s_time);
-  sprintf(filename, "files/data/%d-%02d-%02d_udp", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
 
   char save_time[25];
   strncpy(save_time, ctime(&raw_time), 25);
@@ -28,10 +26,8 @@ void save_stat(struct s_packet* packet, MYSQL* db) {
   write_log("Save stat");
 
   time_t raw_time = time(&raw_time);
-  char filename[50];
   struct tm s_time;
   localtime_r(&raw_time, &s_time);
-  sprintf(filename, "files/data/%d-%02d-%02d_stat", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
 
   struct s_header* header = packet->data;
   struct s_stat* body = packet->data + sizeof(struct s_header);
@@ -53,10 +49,8 @@ void save_mem(struct s_packet* packet, MYSQL* db) {
   write_log("Save mem");
 
   time_t raw_time = time(&raw_time);
-  char filename[50];
   struct tm s_time;
   localtime_r(&raw_time, &s_time);
-  sprintf(filename, "files/data/%d-%02d-%02d_mem", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
 
   struct s_header* header = packet->data;
   struct s_mem* body = packet->data + sizeof(struct s_header);
@@ -78,10 +72,8 @@ void save_net(struct s_packet* packet, MYSQL* db) {
   write_log("Save net");
 
   time_t raw_time = time(&raw_time);
-  char filename[50];
   struct tm s_time;
   localtime_r(&raw_time, &s_time);
-  sprintf(filename, "files/data/%d-%02d-%02d_net", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
 
   struct s_header* header = packet->data;
 
@@ -105,10 +97,8 @@ void save_process(struct s_packet* packet, MYSQL* db) {
   write_log("Save process");
 
   time_t raw_time = time(&raw_time);
-  char filename[50];
   struct tm s_time;
   localtime_r(&raw_time, &s_time);
-  sprintf(filename, "files/data/%d-%02d-%02d_process", s_time.tm_year + 1900, s_time.tm_mon + 1, s_time.tm_mday);
 
   struct s_header* header = packet->data;
 
