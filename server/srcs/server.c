@@ -3,7 +3,6 @@
 extern pthread_mutex_t g_log_mutex;
 
 void* run_worker(void* vparam) {
-//  struct s_queue_wrapper* param = (struct s_queue_wrapper*)vparam;
 	struct s_worker_param* param = (struct s_worker_param*)vparam;
 
   while (1) {

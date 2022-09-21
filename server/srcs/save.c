@@ -25,7 +25,7 @@ void save_udp(struct s_udp_begin* begin, struct s_udp_end* end) {
 }
 
 void save_stat(struct s_packet* packet, MYSQL* db) {
-  // write_log("Save stat");
+  write_log("Save stat");
 
   time_t raw_time = time(&raw_time);
   char filename[50];
@@ -42,11 +42,13 @@ void save_stat(struct s_packet* packet, MYSQL* db) {
 
 	char str[10000];
 	sprintf(str, "insert into stat values (\"%s\", \"%s\", \"%s\", %d, %d, %d, %d);", header->time, save_time, header->agent_name, body->user, body->sys, body->idle, body->iowait);
+//	write_log(str);
 	mysql_query(db, str);
+//	write_log(mysql_error(db);
 }
 
 void save_mem(struct s_packet* packet, MYSQL* db) {
-  // write_log("Save mem");
+  write_log("Save mem");
 
   time_t raw_time = time(&raw_time);
   char filename[50];
@@ -63,12 +65,13 @@ void save_mem(struct s_packet* packet, MYSQL* db) {
 
 	char str[1000];
 	sprintf(str, "insert into mem values (\"%s\", \"%s\", \"%s\", %d, %d, %d, %d);", header->time, save_time, header->agent_name, body->mem_total, body->mem_free, body->swap_total, body->swap_free);
+//	write_log(str);
 	mysql_query(db, str);
 //	write_log(mysql_error(db));
 }
 
 void save_net(struct s_packet* packet, MYSQL* db) {
-  // write_log("Save net");
+  write_log("Save net");
 
   time_t raw_time = time(&raw_time);
   char filename[50];
@@ -86,14 +89,14 @@ void save_net(struct s_packet* packet, MYSQL* db) {
   for (int idx = 0; idx < header->number_of_body; idx++) {
     struct s_net* chunk = packet->data + sizeof(struct s_header) + sizeof(struct s_net) * idx;
 		sprintf(str, "insert into net values (\"%s\", \"%s\", \"%s\", \"%s\", %d, %d, %d, %d);", header->time, save_time, header->agent_name, chunk->interface, chunk->receive_bytes, chunk->receive_packets, chunk->transmit_bytes, chunk->transmit_packets);
-		write_log(str);
+//		write_log(str);
 		mysql_query(db, str);
-		write_log(mysql_error(db));
+//		write_log(mysql_error(db));
   }
 }
 
 void save_process(struct s_packet* packet, MYSQL* db) {
-  // write_log("Save process");
+  write_log("Save process");
 
   time_t raw_time = time(&raw_time);
   char filename[50];
@@ -112,8 +115,8 @@ void save_process(struct s_packet* packet, MYSQL* db) {
     struct s_process* chunk = packet->data + sizeof(struct s_header) + sizeof(struct s_process) * idx;
 		sprintf(str, "insert into process values (\"%s\", \"%s\", \"%s\", %u, %u, %u, %ld, %ld, %lu, %lu, \"%s\", \"%s\", \"%s\");",
 				header->time, save_time, header->agent_name, chunk->pid, chunk->ppid, chunk->loginuid, chunk->cutime, chunk->cstime, chunk->utime, chunk->stime, chunk->comm, chunk->username, chunk->cmdline);
-		write_log(str);
+//		write_log(str);
 		mysql_query(db, str);
-		write_log(mysql_error(db));
+//		write_log(mysql_error(db));
   }
 }
